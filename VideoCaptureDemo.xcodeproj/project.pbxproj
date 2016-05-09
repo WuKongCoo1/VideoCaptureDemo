@@ -15,6 +15,7 @@
 		6785A0821CE05CF40066015C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6785A0801CE05CF40066015C /* LaunchScreen.storyboard */; };
 		6785A08D1CE05CF40066015C /* VideoCaptureDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A08C1CE05CF40066015C /* VideoCaptureDemoTests.m */; };
 		6785A0981CE05CF40066015C /* VideoCaptureDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0971CE05CF40066015C /* VideoCaptureDemoUITests.m */; };
+		6785A0A81CE079600066015C /* WKPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0A71CE079600066015C /* WKPreviewView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,8 @@
 		6785A0931CE05CF40066015C /* VideoCaptureDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VideoCaptureDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6785A0971CE05CF40066015C /* VideoCaptureDemoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoCaptureDemoUITests.m; sourceTree = "<group>"; };
 		6785A0991CE05CF40066015C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6785A0A61CE079600066015C /* WKPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKPreviewView.h; sourceTree = "<group>"; };
+		6785A0A71CE079600066015C /* WKPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WKPreviewView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +113,8 @@
 				6785A0801CE05CF40066015C /* LaunchScreen.storyboard */,
 				6785A0831CE05CF40066015C /* Info.plist */,
 				6785A0721CE05CF40066015C /* Supporting Files */,
+				6785A0A61CE079600066015C /* WKPreviewView.h */,
+				6785A0A71CE079600066015C /* WKPreviewView.m */,
 			);
 			path = VideoCaptureDemo;
 			sourceTree = "<group>";
@@ -207,6 +212,7 @@
 				TargetAttributes = {
 					6785A06E1CE05CF40066015C = {
 						CreatedOnToolsVersion = 7.3;
+						DevelopmentTeam = XZ34K9Y7K9;
 					};
 					6785A0871CE05CF40066015C = {
 						CreatedOnToolsVersion = 7.3;
@@ -271,6 +277,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6785A07A1CE05CF40066015C /* ViewController.m in Sources */,
+				6785A0A81CE079600066015C /* WKPreviewView.m in Sources */,
 				6785A0771CE05CF40066015C /* AppDelegate.m in Sources */,
 				6785A0741CE05CF40066015C /* main.m in Sources */,
 			);
@@ -415,10 +422,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = VideoCaptureDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = myCompany.VideoCaptureDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -426,10 +436,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = VideoCaptureDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = myCompany.VideoCaptureDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};
@@ -498,6 +511,7 @@
 				6785A09E1CE05CF40066015C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6785A09F1CE05CF40066015C /* Build configuration list for PBXNativeTarget "VideoCaptureDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -506,6 +520,7 @@
 				6785A0A11CE05CF40066015C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6785A0A21CE05CF40066015C /* Build configuration list for PBXNativeTarget "VideoCaptureDemoUITests" */ = {
 			isa = XCConfigurationList;
@@ -514,6 +529,7 @@
 				6785A0A41CE05CF40066015C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
