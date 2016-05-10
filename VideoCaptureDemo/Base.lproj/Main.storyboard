@@ -70,7 +70,10 @@
                         </variation>
                     </view>
                     <connections>
+                        <outlet property="cameraButton" destination="U0W-Do-V71" id="Cxs-qY-ymN"/>
                         <outlet property="previewView" destination="j3W-Af-7kn" id="tXF-nY-FpZ"/>
+                        <outlet property="recordingButton" destination="wbM-m4-u95" id="zr5-H0-MoH"/>
+                        <outlet property="stillButton" destination="4uR-1O-xaa" id="2v6-47-QVJ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
