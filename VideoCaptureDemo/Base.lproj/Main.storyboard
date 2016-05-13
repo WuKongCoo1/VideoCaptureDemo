@@ -3,6 +3,8 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -18,8 +20,24 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="j3W-Af-7kn" customClass="WKPreviewView">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <rect key="frame" x="150" y="200" width="300" height="200"/>
+                                <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="200" id="1UQ-tA-ceY"/>
+                                    <constraint firstAttribute="width" constant="300" id="8xr-og-WRb"/>
+                                    <constraint firstAttribute="height" constant="480" id="Esv-Y0-MCD"/>
+                                    <constraint firstAttribute="height" constant="150" placeholder="YES" id="OQJ-qv-zQ3"/>
+                                    <constraint firstAttribute="width" secondItem="j3W-Af-7kn" secondAttribute="height" multiplier="4:1" placeholder="YES" id="XeJ-hv-W5X"/>
+                                    <constraint firstAttribute="width" constant="320" id="nCl-h1-DkP"/>
+                                </constraints>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="Esv-Y0-MCD"/>
+                                        <exclude reference="OQJ-qv-zQ3"/>
+                                        <exclude reference="XeJ-hv-W5X"/>
+                                        <exclude reference="nCl-h1-DkP"/>
+                                    </mask>
+                                </variation>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4uR-1O-xaa">
                                 <rect key="frame" x="209" y="522" width="30" height="30"/>
@@ -49,13 +67,16 @@
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="7hu-UI-xmk"/>
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="AiY-Qm-1pZ"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="wbM-m4-u95" secondAttribute="bottom" constant="48" id="Bwe-wa-ALV"/>
+                            <constraint firstItem="j3W-Af-7kn" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="EmV-eE-ZYh"/>
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="LFq-Go-iKF"/>
                             <constraint firstItem="4uR-1O-xaa" firstAttribute="bottom" secondItem="wbM-m4-u95" secondAttribute="bottom" id="Lcc-eg-ocp"/>
                             <constraint firstItem="U0W-Do-V71" firstAttribute="bottom" secondItem="wbM-m4-u95" secondAttribute="bottom" id="QJp-cg-Ggv"/>
+                            <constraint firstItem="j3W-Af-7kn" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="Vuo-mK-4n1"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="j3W-Af-7kn" secondAttribute="bottom" constant="268" id="Ww0-vb-Ahz"/>
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="bhH-CF-a89"/>
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="dxF-XH-aqO"/>
-                            <constraint firstItem="j3W-Af-7kn" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" id="lot-BS-cck"/>
+                            <constraint firstItem="j3W-Af-7kn" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.5" id="lot-BS-cck"/>
+                            <constraint firstAttribute="trailing" secondItem="j3W-Af-7kn" secondAttribute="trailing" id="tE9-UV-khw"/>
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="ucO-xz-hep"/>
                             <constraint firstItem="wbM-m4-u95" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="wbp-aX-XGa"/>
                             <constraint firstItem="wbM-m4-u95" firstAttribute="leading" secondItem="4uR-1O-xaa" secondAttribute="trailing" constant="46" id="wdg-bf-QqZ"/>
@@ -63,7 +84,12 @@
                         <variation key="default">
                             <mask key="constraints">
                                 <exclude reference="7hu-UI-xmk"/>
+                                <exclude reference="AiY-Qm-1pZ"/>
+                                <exclude reference="EmV-eE-ZYh"/>
                                 <exclude reference="LFq-Go-iKF"/>
+                                <exclude reference="Vuo-mK-4n1"/>
+                                <exclude reference="lot-BS-cck"/>
+                                <exclude reference="tE9-UV-khw"/>
                                 <exclude reference="ucO-xz-hep"/>
                                 <exclude reference="Ww0-vb-Ahz"/>
                             </mask>

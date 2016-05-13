@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6753ECC11CE48328008C9090 /* WKMovieRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 6753ECBE1CE48328008C9090 /* WKMovieRecorder.m */; };
+		6753ECC21CE48328008C9090 /* WKPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6753ECC01CE48328008C9090 /* WKPreviewView.m */; };
+		675830B51CE33463008C6A7D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 675830B41CE33463008C6A7D /* Accelerate.framework */; };
 		6785A0741CE05CF40066015C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0731CE05CF40066015C /* main.m */; };
 		6785A0771CE05CF40066015C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0761CE05CF40066015C /* AppDelegate.m */; };
 		6785A07A1CE05CF40066015C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0791CE05CF40066015C /* ViewController.m */; };
@@ -15,7 +18,6 @@
 		6785A0821CE05CF40066015C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6785A0801CE05CF40066015C /* LaunchScreen.storyboard */; };
 		6785A08D1CE05CF40066015C /* VideoCaptureDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A08C1CE05CF40066015C /* VideoCaptureDemoTests.m */; };
 		6785A0981CE05CF40066015C /* VideoCaptureDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0971CE05CF40066015C /* VideoCaptureDemoUITests.m */; };
-		6785A0A81CE079600066015C /* WKPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0A71CE079600066015C /* WKPreviewView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +38,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6753ECBD1CE48328008C9090 /* WKMovieRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKMovieRecorder.h; sourceTree = "<group>"; };
+		6753ECBE1CE48328008C9090 /* WKMovieRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WKMovieRecorder.m; sourceTree = "<group>"; };
+		6753ECBF1CE48328008C9090 /* WKPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKPreviewView.h; sourceTree = "<group>"; };
+		6753ECC01CE48328008C9090 /* WKPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WKPreviewView.m; sourceTree = "<group>"; };
+		675830B41CE33463008C6A7D /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		6785A06F1CE05CF40066015C /* VideoCaptureDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoCaptureDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6785A0731CE05CF40066015C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		6785A0751CE05CF40066015C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -52,8 +59,6 @@
 		6785A0931CE05CF40066015C /* VideoCaptureDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VideoCaptureDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6785A0971CE05CF40066015C /* VideoCaptureDemoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoCaptureDemoUITests.m; sourceTree = "<group>"; };
 		6785A0991CE05CF40066015C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6785A0A61CE079600066015C /* WKPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKPreviewView.h; sourceTree = "<group>"; };
-		6785A0A71CE079600066015C /* WKPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WKPreviewView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				675830B51CE33463008C6A7D /* Accelerate.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,9 +87,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6753ECBC1CE48328008C9090 /* WKMovieRecorder */ = {
+			isa = PBXGroup;
+			children = (
+				6753ECBD1CE48328008C9090 /* WKMovieRecorder.h */,
+				6753ECBE1CE48328008C9090 /* WKMovieRecorder.m */,
+				6753ECBF1CE48328008C9090 /* WKPreviewView.h */,
+				6753ECC01CE48328008C9090 /* WKPreviewView.m */,
+			);
+			path = WKMovieRecorder;
+			sourceTree = "<group>";
+		};
 		6785A0661CE05CF30066015C = {
 			isa = PBXGroup;
 			children = (
+				675830B41CE33463008C6A7D /* Accelerate.framework */,
 				6785A0711CE05CF40066015C /* VideoCaptureDemo */,
 				6785A08B1CE05CF40066015C /* VideoCaptureDemoTests */,
 				6785A0961CE05CF40066015C /* VideoCaptureDemoUITests */,
@@ -104,6 +122,7 @@
 		6785A0711CE05CF40066015C /* VideoCaptureDemo */ = {
 			isa = PBXGroup;
 			children = (
+				6753ECBC1CE48328008C9090 /* WKMovieRecorder */,
 				6785A0751CE05CF40066015C /* AppDelegate.h */,
 				6785A0761CE05CF40066015C /* AppDelegate.m */,
 				6785A0781CE05CF40066015C /* ViewController.h */,
@@ -113,8 +132,6 @@
 				6785A0801CE05CF40066015C /* LaunchScreen.storyboard */,
 				6785A0831CE05CF40066015C /* Info.plist */,
 				6785A0721CE05CF40066015C /* Supporting Files */,
-				6785A0A61CE079600066015C /* WKPreviewView.h */,
-				6785A0A71CE079600066015C /* WKPreviewView.m */,
 			);
 			path = VideoCaptureDemo;
 			sourceTree = "<group>";
@@ -277,9 +294,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				6785A07A1CE05CF40066015C /* ViewController.m in Sources */,
-				6785A0A81CE079600066015C /* WKPreviewView.m in Sources */,
+				6753ECC11CE48328008C9090 /* WKMovieRecorder.m in Sources */,
 				6785A0771CE05CF40066015C /* AppDelegate.m in Sources */,
 				6785A0741CE05CF40066015C /* main.m in Sources */,
+				6753ECC21CE48328008C9090 /* WKPreviewView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
