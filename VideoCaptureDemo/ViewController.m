@@ -289,6 +289,14 @@ AVCaptureVideoDataOutputSampleBufferDelegate
         if ( [_session canAddOutput:videoOut] ) {
             [_session addOutput:videoOut];
             _videoConnection = [videoOut connectionWithMediaType:AVMediaTypeVideo];
+            
+            UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
+            AVCaptureVideoOrientation initialVideoOrientation = AVCaptureVideoOrientationPortrait;
+            if ( statusBarOrientation != UIInterfaceOrientationUnknown ) {
+                initialVideoOrientation = (AVCaptureVideoOrientation)statusBarOrientation;
+            }
+            
+            _videoConnection.videoOrientation = initialVideoOrientation;
         }
         
         // Create a VideoDataOutput and add it to the session
@@ -891,6 +899,14 @@ static CGFloat angleOffsetFromPortraitOrientationToOrientation(AVCaptureVideoOri
     if ( UIDeviceOrientationIsPortrait( deviceOrientation ) || UIDeviceOrientationIsLandscape( deviceOrientation ) ) {
         AVCaptureVideoPreviewLayer *previewLayer = self.previewView.previewLayer;
         previewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)deviceOrientation;
+        
+        UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
+        AVCaptureVideoOrientation initialVideoOrientation = AVCaptureVideoOrientationPortrait;
+        if ( statusBarOrientation != UIInterfaceOrientationUnknown ) {
+            initialVideoOrientation = (AVCaptureVideoOrientation)statusBarOrientation;
+        }
+        
+        _videoConnection.videoOrientation = initialVideoOrientation;
     }
 }
 
@@ -901,6 +917,14 @@ static CGFloat angleOffsetFromPortraitOrientationToOrientation(AVCaptureVideoOri
     if ( UIDeviceOrientationIsPortrait( deviceOrientation ) || UIDeviceOrientationIsLandscape( deviceOrientation ) ) {
         AVCaptureVideoPreviewLayer *previewLayer = self.previewView.previewLayer;
         previewLayer.connection.videoOrientation = (AVCaptureVideoOrientation)deviceOrientation;
+        
+        UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
+        AVCaptureVideoOrientation initialVideoOrientation = AVCaptureVideoOrientationPortrait;
+        if ( statusBarOrientation != UIInterfaceOrientationUnknown ) {
+            initialVideoOrientation = (AVCaptureVideoOrientation)statusBarOrientation;
+        }
+        
+        _videoConnection.videoOrientation = initialVideoOrientation;
     }
 }
 
