@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="LoN-eQ-OSI">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -53,6 +53,13 @@
                                     <action selector="recording:" destination="BYZ-38-t0r" eventType="touchUpInside" id="42k-wR-NpQ"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e3e-NX-3tE">
+                                <rect key="frame" x="427" y="522" width="30" height="30"/>
+                                <state key="normal" title="play"/>
+                                <connections>
+                                    <segue destination="1IV-sd-n5C" kind="show" id="5Rj-5C-AW5"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="U0W-Do-V71">
                                 <rect key="frame" x="366" y="522" width="30" height="30"/>
                                 <state key="normal" title="切换"/>
@@ -68,6 +75,7 @@
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="AiY-Qm-1pZ"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="wbM-m4-u95" secondAttribute="bottom" constant="48" id="Bwe-wa-ALV"/>
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="EmV-eE-ZYh"/>
+                            <constraint firstItem="e3e-NX-3tE" firstAttribute="top" secondItem="U0W-Do-V71" secondAttribute="top" id="Kkl-ue-2n0"/>
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="LFq-Go-iKF"/>
                             <constraint firstItem="4uR-1O-xaa" firstAttribute="bottom" secondItem="wbM-m4-u95" secondAttribute="bottom" id="Lcc-eg-ocp"/>
                             <constraint firstItem="U0W-Do-V71" firstAttribute="bottom" secondItem="wbM-m4-u95" secondAttribute="bottom" id="QJp-cg-Ggv"/>
@@ -77,6 +85,7 @@
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="dxF-XH-aqO"/>
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.5" id="lot-BS-cck"/>
                             <constraint firstAttribute="trailing" secondItem="j3W-Af-7kn" secondAttribute="trailing" id="tE9-UV-khw"/>
+                            <constraint firstItem="e3e-NX-3tE" firstAttribute="leading" secondItem="U0W-Do-V71" secondAttribute="trailing" constant="31" id="ucA-x5-nO0"/>
                             <constraint firstItem="j3W-Af-7kn" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="ucO-xz-hep"/>
                             <constraint firstItem="wbM-m4-u95" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="wbp-aX-XGa"/>
                             <constraint firstItem="wbM-m4-u95" firstAttribute="leading" secondItem="4uR-1O-xaa" secondAttribute="trailing" constant="46" id="wdg-bf-QqZ"/>
@@ -95,6 +104,7 @@
                             </mask>
                         </variation>
                     </view>
+                    <navigationItem key="navigationItem" id="SZt-2L-uQ3"/>
                     <connections>
                         <outlet property="cameraButton" destination="U0W-Do-V71" id="Cxs-qY-ymN"/>
                         <outlet property="previewView" destination="j3W-Af-7kn" id="tXF-nY-FpZ"/>
@@ -103,6 +113,42 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1111" y="336"/>
+        </scene>
+        <!--Play View Controller-->
+        <scene sceneID="0TR-V2-JgB">
+            <objects>
+                <viewController id="1IV-sd-n5C" customClass="PlayViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="7pu-iJ-8bt"/>
+                        <viewControllerLayoutGuide type="bottom" id="UEy-hr-DZY"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="jx9-Qm-3ey">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bf3-dQ-y0c" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1772" y="336"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="L9r-Pm-Yki">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="LoN-eQ-OSI" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="nrL-oe-OvP">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="7sn-na-lb9"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="t2z-Mi-nQf" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="299" y="336"/>
         </scene>

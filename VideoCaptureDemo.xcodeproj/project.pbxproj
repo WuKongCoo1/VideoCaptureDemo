@@ -10,6 +10,7 @@
 		6753ECC11CE48328008C9090 /* WKMovieRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 6753ECBE1CE48328008C9090 /* WKMovieRecorder.m */; };
 		6753ECC21CE48328008C9090 /* WKPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6753ECC01CE48328008C9090 /* WKPreviewView.m */; };
 		675830B51CE33463008C6A7D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 675830B41CE33463008C6A7D /* Accelerate.framework */; };
+		676C543D1CE959F700127DC8 /* PlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 676C543C1CE959F700127DC8 /* PlayViewController.m */; };
 		6785A0741CE05CF40066015C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0731CE05CF40066015C /* main.m */; };
 		6785A0771CE05CF40066015C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0761CE05CF40066015C /* AppDelegate.m */; };
 		6785A07A1CE05CF40066015C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0791CE05CF40066015C /* ViewController.m */; };
@@ -43,6 +44,8 @@
 		6753ECBF1CE48328008C9090 /* WKPreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKPreviewView.h; sourceTree = "<group>"; };
 		6753ECC01CE48328008C9090 /* WKPreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WKPreviewView.m; sourceTree = "<group>"; };
 		675830B41CE33463008C6A7D /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		676C543B1CE959F700127DC8 /* PlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayViewController.h; sourceTree = "<group>"; };
+		676C543C1CE959F700127DC8 /* PlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayViewController.m; sourceTree = "<group>"; };
 		6785A06F1CE05CF40066015C /* VideoCaptureDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoCaptureDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6785A0731CE05CF40066015C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		6785A0751CE05CF40066015C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -127,6 +130,8 @@
 				6785A0761CE05CF40066015C /* AppDelegate.m */,
 				6785A0781CE05CF40066015C /* ViewController.h */,
 				6785A0791CE05CF40066015C /* ViewController.m */,
+				676C543B1CE959F700127DC8 /* PlayViewController.h */,
+				676C543C1CE959F700127DC8 /* PlayViewController.m */,
 				6785A07B1CE05CF40066015C /* Main.storyboard */,
 				6785A07E1CE05CF40066015C /* Assets.xcassets */,
 				6785A0801CE05CF40066015C /* LaunchScreen.storyboard */,
@@ -297,6 +302,7 @@
 				6753ECC11CE48328008C9090 /* WKMovieRecorder.m in Sources */,
 				6785A0771CE05CF40066015C /* AppDelegate.m in Sources */,
 				6785A0741CE05CF40066015C /* main.m in Sources */,
+				676C543D1CE959F700127DC8 /* PlayViewController.m in Sources */,
 				6753ECC21CE48328008C9090 /* WKPreviewView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

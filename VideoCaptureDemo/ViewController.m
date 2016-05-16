@@ -29,7 +29,8 @@ typedef NS_ENUM( NSInteger, CaptureAVSetupResult ) {
 @interface ViewController ()
 <
 AVCaptureFileOutputRecordingDelegate,
-AVCaptureVideoDataOutputSampleBufferDelegate
+AVCaptureVideoDataOutputSampleBufferDelegate,
+AVCaptureAudioDataOutputSampleBufferDelegate
 >
 
 // For use in the storyboards.
@@ -59,6 +60,8 @@ AVCaptureVideoDataOutputSampleBufferDelegate
 
 @property (nonatomic, strong) AVCaptureVideoDataOutput *videoDataOutput;
 @property (nonatomic, strong)  AVAssetWriterInput *videoInput;
+@property (nonatomic, strong) AVAssetWriterInput *audioInput;
+
 // Utilities.
 @property(readwrite) float videoFrameRate;
 @property(readwrite) CMVideoDimensions videoDimensions;
@@ -78,6 +81,7 @@ AVCaptureVideoDataOutputSampleBufferDelegate
 - (IBAction)still:(id)sender;
 - (IBAction)recording:(id)sender;
 - (IBAction)changeCamera:(id)sender;
+- (IBAction)play:(id)sender;
 
 
 @end
@@ -229,46 +233,11 @@ AVCaptureVideoDataOutputSampleBufferDelegate
         
         if ( [self.session canAddInput:audioDeviceInput] ) {
             [self.session addInput:audioDeviceInput];
+    
         }
         else {
             NSLog( @"Could not add audio device input to the session" );
         }
-        
-        //
-        //        AVCaptureMovieFileOutput *movieOutput = [[AVCaptureMovieFileOutput alloc] init];
-        //        if ([self.session canAddOutput:movieOutput]) {
-        //            [self.session addOutput:movieOutput];
-        //            self.movieFileOutput = movieOutput;
-        //
-        //            AVCaptureConnection *connection = [movieOutput connectionWithMediaType:AVMediaTypeVideo];
-        //
-        //
-        //
-        //            if (connection.isVideoStabilizationSupported) {
-        //                connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeAuto;
-        //            }
-        //        }
-        //        else{
-        //
-        //            NSLog( @"Could not add movie file output to the session" );
-        //            self.result = CaptureAVSetupResultSessionConfigurationFailed;
-        //        }
-        //
-        //        AVCaptureStillImageOutput *stillImageOutput = [[AVCaptureStillImageOutput alloc] init];
-        //
-        //        if ([self.session canAddOutput:stillImageOutput]) {
-        //            stillImageOutput.outputSettings = @{AVVideoCodecKey : AVVideoCodecJPEG};
-        //
-        //            [self.session addOutput:stillImageOutput];
-        //
-        //            self.stillImageOutput = stillImageOutput;
-        //
-        //        }
-        //        else{
-        //            NSLog( @"Could not add still image output to the session" );
-        //            self.result = CaptureAVSetupResultSessionConfigurationFailed;
-        //        }
-        
         
         _videoDataOutputQueue = dispatch_queue_create( "com.apple.sample.capturepipeline.video", DISPATCH_QUEUE_SERIAL );
         dispatch_set_target_queue( _videoDataOutputQueue, dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_HIGH, 0 ) );
@@ -278,17 +247,15 @@ AVCaptureVideoDataOutputSampleBufferDelegate
         videoOut.videoSettings = @{ (id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
         [videoOut setSampleBufferDelegate:self queue:_videoDataOutputQueue];
         
-        
-        
-        // RosyWriter records videos and we prefer not to have any dropped frames in the video recording.
-        // By setting alwaysDiscardsLateVideoFrames to NO we ensure that minor fluctuations in system load or in our processing time for a given frame won't cause framedrops.
-        // We do however need to ensure that on average we can process frames in realtime.
-        // If we were doing preview only we would probably want to set alwaysDiscardsLateVideoFrames to YES.
         videoOut.alwaysDiscardsLateVideoFrames = NO;
         
         if ( [_session canAddOutput:videoOut] ) {
             [_session addOutput:videoOut];
             _videoConnection = [videoOut connectionWithMediaType:AVMediaTypeVideo];
+            
+            if(_videoConnection.isVideoStabilizationSupported){
+                _videoConnection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeAuto;
+            }
             
             UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
             AVCaptureVideoOrientation initialVideoOrientation = AVCaptureVideoOrientationPortrait;
@@ -298,11 +265,7 @@ AVCaptureVideoDataOutputSampleBufferDelegate
             
             _videoConnection.videoOrientation = initialVideoOrientation;
         }
-        
-        // Create a VideoDataOutput and add it to the session
-        //        AVCaptureVideoDataOutput *output = [[AVCaptureVideoDataOutput alloc] init];
-        //        // Configure your output.
-        //
+
         //        output.videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
         //                                AVVideoCodecH264, AVVideoCodecKey,
         //                                [NSNumber numberWithInt:300], AVVideoWidthKey,
@@ -310,18 +273,19 @@ AVCaptureVideoDataOutputSampleBufferDelegate
         //                                AVVideoScalingModeResizeAspectFill,AVVideoScalingModeKey,
         //
         //                                nil];
-        //        // Specify the pixel format
-        //        dispatch_queue_t queue = dispatch_queue_create("myQueue", NULL);
-        //        if ([self.session canAddOutput:output]) {
-        //            [self.session addOutput:output];
-        //            
-        //            self.videoDataOutput = output;
-        //            
-        //            _videoConnection = [output connectionWithMediaType:AVMediaTypeVideo];
-        //            
-        //            [output setSampleBufferDelegate:self queue:queue];
-        //            NSLog(@"");
-        //        }
+   
+        
+
+        AVCaptureAudioDataOutput *audioOut = [[AVCaptureAudioDataOutput alloc] init];
+        // Put audio on its own queue to ensure that our video processing doesn't cause us to drop audio
+        dispatch_queue_t audioCaptureQueue = dispatch_queue_create( "com.apple.sample.capturepipeline.audio", DISPATCH_QUEUE_SERIAL );
+        [audioOut setSampleBufferDelegate:self queue:audioCaptureQueue];
+        
+        
+        if ( [self.session canAddOutput:audioOut] ) {
+            [self.session addOutput:audioOut];
+        }
+        _audioConnection = [audioOut connectionWithMediaType:AVMediaTypeAudio];
         
         
         [self.session commitConfiguration];
@@ -333,17 +297,17 @@ AVCaptureVideoDataOutputSampleBufferDelegate
 #pragma mark KVO and Notifications
 - (void)addObservers
 {
-//    [self.session addObserver:self forKeyPath:@"running" options:NSKeyValueObservingOptionNew context:SessionRunningContext];
-//    [self.stillImageOutput addObserver:self forKeyPath:@"capturingStillImage" options:NSKeyValueObservingOptionNew context:CapturingStillImageContext];
-//    
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:self.videoDeviceInput.device];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionRuntimeError:) name:AVCaptureSessionRuntimeErrorNotification object:self.session];
-//    // A session can only run when the app is full screen. It will be interrupted in a multi-app layout, introduced in iOS 9,
-//    // see also the documentation of AVCaptureSessionInterruptionReason. Add observers to handle these session interruptions
-//    // and show a preview is paused message. See the documentation of AVCaptureSessionWasInterruptedNotification for other
-//    // interruption reasons.
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionWasInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:self.session];
-//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionInterruptionEnded:) name:AVCaptureSessionInterruptionEndedNotification object:self.session];
+    [self.session addObserver:self forKeyPath:@"running" options:NSKeyValueObservingOptionNew context:SessionRunningContext];
+    [self.stillImageOutput addObserver:self forKeyPath:@"capturingStillImage" options:NSKeyValueObservingOptionNew context:CapturingStillImageContext];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subjectAreaDidChange:) name:AVCaptureDeviceSubjectAreaDidChangeNotification object:self.videoDeviceInput.device];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionRuntimeError:) name:AVCaptureSessionRuntimeErrorNotification object:self.session];
+    // A session can only run when the app is full screen. It will be interrupted in a multi-app layout, introduced in iOS 9,
+    // see also the documentation of AVCaptureSessionInterruptionReason. Add observers to handle these session interruptions
+    // and show a preview is paused message. See the documentation of AVCaptureSessionWasInterruptedNotification for other
+    // interruption reasons.
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionWasInterrupted:) name:AVCaptureSessionWasInterruptedNotification object:self.session];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sessionInterruptionEnded:) name:AVCaptureSessionInterruptionEndedNotification object:self.session];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -804,6 +768,9 @@ static CGFloat angleOffsetFromPortraitOrientationToOrientation(AVCaptureVideoOri
     });
 }
 
+- (IBAction)play:(id)sender {
+}
+
 
 #pragma mark - AVCaptureFileOutputRecordingDelegate
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
@@ -865,13 +832,15 @@ static CGFloat angleOffsetFromPortraitOrientationToOrientation(AVCaptureVideoOri
             else {
                 if (!_haveStartedSession) {
                     _haveStartedSession = YES;
-//                    [self.videoWriter startWriting];
                     if (self.videoWriter.status != AVAssetExportSessionStatusUnknown) {
                         [self.videoWriter startSessionAtSourceTime:CMSampleBufferGetPresentationTimeStamp(sampleBuffer)];
                         _currentbuffer = sampleBuffer;
                         [self.videoInput appendSampleBuffer:sampleBuffer];
                     }
                     
+                }else{
+                    _currentbuffer = sampleBuffer;
+                    [self.videoInput appendSampleBuffer:sampleBuffer];
                 }
                 
             }
@@ -880,12 +849,14 @@ static CGFloat angleOffsetFromPortraitOrientationToOrientation(AVCaptureVideoOri
         {
             self.outputAudioFormatDescription = formatDescription;
             
-            
+            @synchronized( self ) {
+                if (self.videoWriter.status != AVAssetExportSessionStatusUnknown) {
+                    [self.audioInput appendSampleBuffer:sampleBuffer];
+                }
+            }
             
         }
     }
-    
-    
 }
 
 
@@ -1032,8 +1003,8 @@ static CGFloat angleOffsetFromPortraitOrientationToOrientation(AVCaptureVideoOri
     //--------------------------------------------初始化图像信息输入参数--------------------------------------------
     NSDictionary *videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
                                    AVVideoCodecH264, AVVideoCodecKey,
-                                   [NSNumber numberWithInt:size.width * 2], AVVideoWidthKey,
-                                   [NSNumber numberWithInt:size.height * 2],AVVideoHeightKey,
+                                   [NSNumber numberWithInt:300], AVVideoWidthKey,
+                                   [NSNumber numberWithInt:200],AVVideoHeightKey,
                                    AVVideoScalingModeResizeAspectFill,AVVideoScalingModeKey,
                                    nil];
     
@@ -1088,14 +1059,14 @@ static CGFloat angleOffsetFromPortraitOrientationToOrientation(AVCaptureVideoOri
     
     
     
-//    self.audioWriterInput = [AVAssetWriterInput  assetWriterInputWithMediaType: AVMediaTypeAudio
-//                                                                outputSettings: audioOutputSettings];
-//    self.audioWriterInput.expectsMediaDataInRealTime = YES;
+    self.audioInput = [AVAssetWriterInput  assetWriterInputWithMediaType: AVMediaTypeAudio
+                                                                outputSettings: audioOutputSettings];
+    self.audioInput.expectsMediaDataInRealTime = YES;
     
     
     
     //图像和语音输入添加到刻录机
-//    [self.videoWriter addInput:self.audioWriterInput];
+    [self.videoWriter addInput:self.audioInput];
     
     [self.videoWriter addInput:self.videoInput];
     
