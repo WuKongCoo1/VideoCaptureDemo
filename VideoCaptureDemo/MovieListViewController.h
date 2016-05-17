@@ -1,5 +1,5 @@
 //
-//  PlayViewController.h
+//  MovieListViewController.h
 //  VideoCaptureDemo
 //
 //  Created by 吴珂 on 16/5/16.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface PlayViewController : UIViewController
-
-
+@interface MovieListViewController : UIViewController
 
 @end

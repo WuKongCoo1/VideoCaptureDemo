@@ -90,67 +90,69 @@ AVCaptureAudioDataOutputSampleBufferDelegate
 {
     BOOL _haveStartedSession;
 }
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    
-    [self setup];
-    
-    [self initVideoAudioWriter];
-    
-    NSString* docFolder = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-    NSString* outputPath = [docFolder stringByAppendingPathComponent:@"output2.mov"];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:outputPath])
-        [[NSFileManager defaultManager] removeItemAtPath:outputPath error:nil];
-    _recorder = [[WKMovieRecorder alloc] initWithURL:[NSURL fileURLWithPath:outputPath]];
-    
-    //    [self setupAVideoDataOutput];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    
-    dispatch_async(self.sessionQueue, ^{
-        switch (self.result) {
-            case CaptureAVSetupResultSuccess: {
-                [self addObservers];
-                
-                [self.session startRunning];
-                self.session.sessionPreset = AVCaptureSessionPresetHigh;
-                self.sessionRunning = self.session.isRunning;
-                break;
-            }
-            case CaptureAVSetupResultCameraNotAuthorized: {
-                dispatch_async( dispatch_get_main_queue(), ^{
-                    NSString *message = NSLocalizedString( @"AVCam doesn't have permission to use the camera, please change privacy settings", @"Alert message when the user has denied access to the camera" );
-                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"AVCam" message:message preferredStyle:UIAlertControllerStyleAlert];
-                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"OK", @"Alert OK button" ) style:UIAlertActionStyleCancel handler:nil];
-                    [alertController addAction:cancelAction];
-                    // Provide quick access to Settings.
-                    UIAlertAction *settingsAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"Settings", @"Alert button to open Settings" ) style:UIAlertActionStyleDefault handler:^( UIAlertAction *action ) {
-                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-                    }];
-                    [alertController addAction:settingsAction];
-                    [self presentViewController:alertController animated:YES completion:nil];
-                } );
-                
-                break;
-            }
-            case CaptureAVSetupResultSessionConfigurationFailed: {
-                dispatch_async( dispatch_get_main_queue(), ^{
-                    NSString *message = NSLocalizedString( @"Unable to capture media", @"Alert message when something goes wrong during capture session configuration" );
-                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"AVCam" message:message preferredStyle:UIAlertControllerStyleAlert];
-                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"OK", @"Alert OK button" ) style:UIAlertActionStyleCancel handler:nil];
-                    [alertController addAction:cancelAction];
-                    [self presentViewController:alertController animated:YES completion:nil];
-                } );
-                break;
-            }
-        }
-    });
-    
-    
-}
+//- (void)viewDidLoad {
+//    [super viewDidLoad];
+//    
+//    
+//    
+//    [self setup];
+//    
+//    [self initVideoAudioWriter];
+//    
+//    NSString* docFolder = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+//    NSString* outputPath = [docFolder stringByAppendingPathComponent:@"output2.mov"];
+//    if ([[NSFileManager defaultManager] fileExistsAtPath:outputPath])
+//        [[NSFileManager defaultManager] removeItemAtPath:outputPath error:nil];
+//    _recorder = [[WKMovieRecorder alloc] initWithURL:[NSURL fileURLWithPath:outputPath]];
+//    
+//    //    [self setupAVideoDataOutput];
+//}
+//
+//- (void)viewWillAppear:(BOOL)animated
+//{
+//    [super viewWillAppear:animated];
+//    
+//    dispatch_async(self.sessionQueue, ^{
+//        switch (self.result) {
+//            case CaptureAVSetupResultSuccess: {
+//                [self addObservers];
+//                
+//                [self.session startRunning];
+//                self.session.sessionPreset = AVCaptureSessionPresetHigh;
+//                self.sessionRunning = self.session.isRunning;
+//                break;
+//            }
+//            case CaptureAVSetupResultCameraNotAuthorized: {
+//                dispatch_async( dispatch_get_main_queue(), ^{
+//                    NSString *message = NSLocalizedString( @"AVCam doesn't have permission to use the camera, please change privacy settings", @"Alert message when the user has denied access to the camera" );
+//                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"AVCam" message:message preferredStyle:UIAlertControllerStyleAlert];
+//                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"OK", @"Alert OK button" ) style:UIAlertActionStyleCancel handler:nil];
+//                    [alertController addAction:cancelAction];
+//                    // Provide quick access to Settings.
+//                    UIAlertAction *settingsAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"Settings", @"Alert button to open Settings" ) style:UIAlertActionStyleDefault handler:^( UIAlertAction *action ) {
+//                        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+//                    }];
+//                    [alertController addAction:settingsAction];
+//                    [self presentViewController:alertController animated:YES completion:nil];
+//                } );
+//                
+//                break;
+//            }
+//            case CaptureAVSetupResultSessionConfigurationFailed: {
+//                dispatch_async( dispatch_get_main_queue(), ^{
+//                    NSString *message = NSLocalizedString( @"Unable to capture media", @"Alert message when something goes wrong during capture session configuration" );
+//                    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"AVCam" message:message preferredStyle:UIAlertControllerStyleAlert];
+//                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString( @"OK", @"Alert OK button" ) style:UIAlertActionStyleCancel handler:nil];
+//                    [alertController addAction:cancelAction];
+//                    [self presentViewController:alertController animated:YES completion:nil];
+//                } );
+//                break;
+//            }
+//        }
+//    });
+//    
+//    
+//}
 
 - (void)setup
 {
@@ -576,22 +578,16 @@ AVCaptureAudioDataOutputSampleBufferDelegate
     self.cameraButton.enabled = NO;
     
     if (self.isRecording) {
-//        [self.recorder finishRecording];
+
         [self.videoInput markAsFinished];
-        
-//        [self.videoWriter endSessionAtSourceTime:CMSampleBufferGetPresentationTimeStamp(_currentbuffer)]; //optional can call finishWriting without specifiying endTime
         
         [self.videoWriter finishWritingWithCompletionHandler:^{
             NSLog(@"写完了");
-//            self.videoWriter = nil;
-//            [self initVideoAudioWriter];
+
         }];
         self.recording = NO;
     }else{
-//        CGAffineTransform videoTransform = [self transformFromVideoBufferOrientationToOrientation:self.videoOrientation withAutoMirroring:NO]; // Front camera recording shouldn't be mirrored
-        
-//        [self.recorder addVideoTrackWithSourceFormatDescription:self.outputVideoFormatDescription transform:videoTransform settings:_videoCompressionSettings];
-//        [self.recorder prepareToRecord];
+
         
         NSString *filePath = [[self.videoWriter.outputURL absoluteString] stringByReplacingOccurrencesOfString:@"file://" withString:@""];
         BOOL isDirectory = NO;
@@ -614,10 +610,7 @@ AVCaptureAudioDataOutputSampleBufferDelegate
             }
                 break;
         }
-        
-        
-        
-        //        [self.videoWriter startSessionAtSourceTime:kCMTimeZero];
+    
         self.recording = YES;
         _haveStartedSession = NO;
         
@@ -660,58 +653,6 @@ AVCaptureAudioDataOutputSampleBufferDelegate
 //    });
     
 }
-- (CGAffineTransform)transformFromVideoBufferOrientationToOrientation:(AVCaptureVideoOrientation)orientation withAutoMirroring:(BOOL)mirror
-{
-    CGAffineTransform transform = CGAffineTransformIdentity;
-    
-    // Calculate offsets from an arbitrary reference orientation (portrait)
-    CGFloat orientationAngleOffset = angleOffsetFromPortraitOrientationToOrientation( orientation );
-    CGFloat videoOrientationAngleOffset = angleOffsetFromPortraitOrientationToOrientation( self.videoOrientation );
-    
-    // Find the difference in angle between the desired orientation and the video orientation
-    CGFloat angleOffset = orientationAngleOffset - videoOrientationAngleOffset;
-    transform = CGAffineTransformMakeRotation( angleOffset );
-    
-    if ( _captureDevice.position == AVCaptureDevicePositionFront )
-    {
-        if ( mirror ) {
-            transform = CGAffineTransformScale( transform, -1, 1 );
-        }
-        else {
-            if ( UIInterfaceOrientationIsPortrait( orientation ) ) {
-                transform = CGAffineTransformRotate( transform, M_PI );
-            }
-        }
-    }
-    
-    return transform;
-}
-
-static CGFloat angleOffsetFromPortraitOrientationToOrientation(AVCaptureVideoOrientation orientation)
-{
-    CGFloat angle = 0.0;
-    
-    switch ( orientation )
-    {
-        case AVCaptureVideoOrientationPortrait:
-            angle = 0.0;
-            break;
-        case AVCaptureVideoOrientationPortraitUpsideDown:
-            angle = M_PI;
-            break;
-        case AVCaptureVideoOrientationLandscapeRight:
-            angle = -M_PI_2;
-            break;
-        case AVCaptureVideoOrientationLandscapeLeft:
-            angle = M_PI_2;
-            break;
-        default:
-            break;
-    }
-    
-    return angle;
-}
-
 
 - (IBAction)changeCamera:(id)sender {
     dispatch_async(self.sessionQueue, ^{
@@ -978,7 +919,7 @@ static CGFloat angleOffsetFromPortraitOrientationToOrientation(AVCaptureVideoOri
 -(void) initVideoAudioWriter
 {
     //视频图像范围
-    CGSize size = CGSizeMake(200, 200);
+//    CGSize size = CGSizeMake(200, 200); 
     
     //刻录视频文件生成路径
     NSString *betaCompressionDirectory = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Movie.MOV"];

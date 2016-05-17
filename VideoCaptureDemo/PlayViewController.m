@@ -8,10 +8,15 @@
 
 #import "PlayViewController.h"
 #import <AVFoundation/AVFoundation.h>
+#import "WKVideoConverter.h"
 
 @interface PlayViewController ()
 
 @property (nonatomic, strong) AVPlayer *player;
+
+@property (nonatomic, strong) UIView *preView;
+
+@property (nonatomic, strong) WKVideoConverter *converter;
 
 @end
 
@@ -21,15 +26,64 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSString *videoFilePath = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Movie.MOV"];//Get the Video from Bundle
-    NSURL *videoFileURL = [NSURL fileURLWithPath: videoFilePath];//Convert the NSString To NSURL
-    AVPlayer *player = [[AVPlayer alloc] initWithURL: videoFileURL]; // Create The AVPlayer With the URL
-    AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer: player];//Place it to A Layer
-    playerLayer.frame = self.view.frame;//Create A view frame size to match the view
-    [self.view.layer addSublayer: playerLayer];//Add it to Player Layer
-    [playerLayer setNeedsDisplay];// Set it to Display
-    [player play];//Play it
-    self.player = player;
+//    NSString *videoFilePath = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Movie.MOV"];//Get the Video from Bundle
+//    NSURL *videoFileURL = [NSURL fileURLWithPath: videoFilePath];//Convert the NSString To NSURL
+//    AVPlayer *player = [[AVPlayer alloc] initWithURL: videoFileURL]; // Create The AVPlayer With the URL
+//    AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer: player];//Place it to A Layer
+//    playerLayer.frame = self.view.frame;//Create A view frame size to match the view
+//    [self.view.layer addSublayer: playerLayer];//Add it to Player Layer
+//    [playerLayer setNeedsDisplay];// Set it to Display
+//    [player play];//Play it
+//    self.player = player;
+    
+    _preView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 200)];
+    _preView.center = self.view.center;
+    [self.view addSubview:_preView];
+    
+    NSString *filePath;
+    
+#if TARGET_IPHONE_SIMULATOR
+    
+    filePath = @"/Users/wukong/Desktop/0.MOV";
+#else
+    
+    filePath = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/0.MOV"];
+    
+#endif
+    
+    
+    
+    _converter = [[WKVideoConverter alloc] init];
+    __weak typeof(self)weakSelf = self;
+    [_converter convertVideoToImagesWithURL:[NSURL fileURLWithPath:filePath]
+                       finishBlock:^(NSArray *images) {
+                           AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:[NSURL fileURLWithPath:filePath] options:nil];
+                           CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"contents"];
+                           // asset.duration.value/asset.duration.timescale 得到视频的真实时间
+                           animation.duration = asset.duration.value/asset.duration.timescale;
+                           animation.values = images;
+                           animation.repeatCount = MAXFLOAT;
+                           [weakSelf.preView.layer addAnimation:animation forKey:nil];
+                           // 确保内存能及时释放掉
+                           [images enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                               if (obj) {
+                                   NSLog(@"%@", obj);
+                                   obj = nil;
+                                   
+                                   //            CGImageRelease((__bridge CGImageRef)obj);
+                               }
+                           }];
+//                           images = nil;
+//                           weakSelf.converter = nil;
+                       }];
+    
+}
+
+- (void)dealloc
+{
+    [_preView.layer removeAllAnimations];
+    _preView = nil;
+    NSLog(@"");
 }
 
 - (void)didReceiveMemoryWarning {
