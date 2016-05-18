@@ -22,6 +22,7 @@
 		6785A0821CE05CF40066015C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6785A0801CE05CF40066015C /* LaunchScreen.storyboard */; };
 		6785A08D1CE05CF40066015C /* VideoCaptureDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A08C1CE05CF40066015C /* VideoCaptureDemoTests.m */; };
 		6785A0981CE05CF40066015C /* VideoCaptureDemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0971CE05CF40066015C /* VideoCaptureDemoUITests.m */; };
+		67F598541CEC1F1600E39755 /* WeChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F598531CEC1F1600E39755 /* WeChatViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,8 @@
 		6785A0931CE05CF40066015C /* VideoCaptureDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VideoCaptureDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6785A0971CE05CF40066015C /* VideoCaptureDemoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoCaptureDemoUITests.m; sourceTree = "<group>"; };
 		6785A0991CE05CF40066015C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		67F598521CEC1F1600E39755 /* WeChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeChatViewController.h; sourceTree = "<group>"; };
+		67F598531CEC1F1600E39755 /* WeChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WeChatViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,6 +150,8 @@
 				67193A581CE9B173005C6D13 /* MovieListViewController.m */,
 				67193A5A1CE9B530005C6D13 /* MovieCell.h */,
 				67193A5B1CE9B530005C6D13 /* MovieCell.m */,
+				67F598521CEC1F1600E39755 /* WeChatViewController.h */,
+				67F598531CEC1F1600E39755 /* WeChatViewController.m */,
 				6785A07B1CE05CF40066015C /* Main.storyboard */,
 				6785A07E1CE05CF40066015C /* Assets.xcassets */,
 				6785A0801CE05CF40066015C /* LaunchScreen.storyboard */,
@@ -321,6 +326,7 @@
 				67193A5F1CE9CBC7005C6D13 /* WKVideoConverter.m in Sources */,
 				676C543D1CE959F700127DC8 /* PlayViewController.m in Sources */,
 				67193A5C1CE9B530005C6D13 /* MovieCell.m in Sources */,
+				67F598541CEC1F1600E39755 /* WeChatViewController.m in Sources */,
 				6753ECC21CE48328008C9090 /* WKPreviewView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

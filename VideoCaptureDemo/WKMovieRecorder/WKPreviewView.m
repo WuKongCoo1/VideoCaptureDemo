@@ -22,16 +22,18 @@
 
 - (void)setSession:(AVCaptureSession *)session
 {
+    
+    [_previewLayer removeFromSuperlayer];
     _session = session;
 //    AVCaptureVideoPreviewLayer *previewLayer = (AVCaptureVideoPreviewLayer *)self.layer;
 //    previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
 //    previewLayer.session = session;
     
-    _videoPreviewLayer = [AVCaptureVideoPreviewLayer layerWithSession:session];
-    _videoPreviewLayer.frame = self.layer.bounds;
-    _videoPreviewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    _previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:session];
+    _previewLayer.frame = self.layer.bounds;
+    _previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
     
-    [self.layer addSublayer:_videoPreviewLayer];
+    [self.layer addSublayer:_previewLayer];
     
 }
 
@@ -57,6 +59,6 @@
 
 - (AVCaptureVideoPreviewLayer *)previewLayer
 {
-    return _videoPreviewLayer;
+    return _previewLayer;
 }
 @end

@@ -1,12 +1,14 @@
 //
-//  ViewController.m
+//  WeChatViewController.m
 //  VideoCaptureDemo
 //
-//  Created by 吴珂 on 16/5/9.
+//  Created by 吴珂 on 16/5/18.
 //  Copyright © 2016年 吴珂. All rights reserved.
 //
 
-@import Photos;
+#import "WeChatViewController.h"
+
+
 
 #import "ViewController.h"
 #import <AVFoundation/AVFoundation.h>
@@ -15,7 +17,7 @@
 #import <Accelerate/Accelerate.h>
 #import "WKMovieRecorder.h"
 
-
+@import Photos;
 
 static void *SessionRunningContext = &SessionRunningContext;
 static void *CapturingStillImageContext = &CapturingStillImageContext;
@@ -26,11 +28,22 @@ typedef NS_ENUM( NSInteger, CaptureAVSetupResult ) {
     CaptureAVSetupResultSessionConfigurationFailed
 };
 
-@interface ViewController ()
+typedef NS_ENUM( NSInteger, RecordingStatus )
+{
+    RecordingStatusIdle = 0,
+    RecordingStatusStartingRecording,
+    RecordingStatusRecording,
+    RecordingStatusStoppingRecording,
+};
+
+
+
+@interface WeChatViewController ()
 <
 AVCaptureFileOutputRecordingDelegate,
 AVCaptureVideoDataOutputSampleBufferDelegate,
-AVCaptureAudioDataOutputSampleBufferDelegate
+AVCaptureAudioDataOutputSampleBufferDelegate,
+WKMovieRecorderDelegate
 >
 
 // For use in the storyboards.
@@ -38,6 +51,7 @@ AVCaptureAudioDataOutputSampleBufferDelegate
 @property (weak, nonatomic) IBOutlet UIButton *stillButton;
 @property (weak, nonatomic) IBOutlet UIButton *recordingButton;
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;
+@property (weak, nonatomic) IBOutlet UIButton *longPressButton;
 
 // Session management.
 @property (nonatomic, strong) dispatch_queue_t sessionQueue;
@@ -72,7 +86,14 @@ AVCaptureAudioDataOutputSampleBufferDelegate
 @property(nonatomic, retain) __attribute__((NSObject)) CMFormatDescriptionRef outputVideoFormatDescription;
 @property(nonatomic, retain) __attribute__((NSObject)) CMFormatDescriptionRef outputAudioFormatDescription;
 
+@property (nonatomic, strong) NSTimer *startTimer;
+@property (nonatomic, strong) NSTimer *countDownTimer;
+@property (nonatomic, assign, getter=isCountDownOver) BOOL countDownOver;
+
 @property (nonatomic, assign, getter=isRecording) BOOL recording;
+@property (nonatomic, assign, getter=isFinishRecording) BOOL finishRecording;
+
+@property (nonatomic, assign) RecordingStatus status;
 
 @property (nonatomic,) CMSampleBufferRef currentbuffer;
 
@@ -84,12 +105,14 @@ AVCaptureAudioDataOutputSampleBufferDelegate
 - (IBAction)play:(id)sender;
 
 
+
 @end
 
-@implementation ViewController
+@implementation WeChatViewController
 {
     BOOL _haveStartedSession;
 }
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -97,27 +120,35 @@ AVCaptureAudioDataOutputSampleBufferDelegate
     
     [self setup];
     
-    [self.view addSubview:[UIView new]];
-    
-//    [self initVideoAudioWriter];
+    //    [self initVideoAudioWriter];
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
     
     NSString* docFolder = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
     NSString* outputPath = [docFolder stringByAppendingPathComponent:@"output2.mov"];
     if ([[NSFileManager defaultManager] fileExistsAtPath:outputPath])
         [[NSFileManager defaultManager] removeItemAtPath:outputPath error:nil];
     _recorder = [[WKMovieRecorder alloc] initWithURL:[NSURL fileURLWithPath:outputPath]];
+    _recorder.delegate = self;
     
     [_recorder prepareRecording];
     
+//    self.finishRecording = YES;
+    
     //    [self setupAVideoDataOutput];
 }
-
 
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
     
+    static BOOL once = YES;
+    
+    if (once) {
+        [_previewView setSession:self.session];
+        once = NO;
+    }
     dispatch_async(self.sessionQueue, ^{
         switch (self.result) {
             case CaptureAVSetupResultSuccess: {
@@ -165,10 +196,75 @@ AVCaptureAudioDataOutputSampleBufferDelegate
     UIBarButtonItem *cancleItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStylePlain target:self action:@selector(cancle:)];
     
     self.navigationItem.leftBarButtonItem = cancleItem;
+    
+    
+    CALayer *longPressLayer = self.longPressButton.layer;
+    longPressLayer.masksToBounds = YES;
+    longPressLayer.borderColor = [UIColor greenColor].CGColor;
+    longPressLayer.borderWidth = 1.f;
+    longPressLayer.cornerRadius = longPressLayer.bounds.size.width / 2;
+    
+    
+    [self.longPressButton addTarget:self action:@selector(beginLongPress) forControlEvents:UIControlEventTouchDown];
+    [self.longPressButton addTarget:self action:@selector(moveOut) forControlEvents:UIControlEventTouchUpOutside];
+    [self.longPressButton addTarget:self action:@selector(endPress) forControlEvents:UIControlEventTouchUpInside];
+    [self.longPressButton addTarget:self action:@selector(dragEnter) forControlEvents:UIControlEventTouchDragEnter];
+    [self.longPressButton addTarget:self action:@selector(dragExit) forControlEvents:UIControlEventTouchDragExit];
+    
+    
 }
 
 - (void)cancle:(id)sender
 {
+    
+}
+
+- (void)beginLongPress
+{
+//    if (!self.finishRecording) {
+//        return;
+//    }
+    
+    _countDownTimer = [NSTimer scheduledTimerWithTimeInterval:10.f target:self selector:@selector(endRecording) userInfo:nil repeats:NO];
+    
+    //开始录制
+    [self benginRecording];
+}
+
+- (void)moveOut
+{
+    NSLog(@"%s", __FUNCTION__);
+    [_countDownTimer invalidate];
+    if (self.status == RecordingStatusStartingRecording) {
+        [self finishRecording];
+    }
+}
+
+- (void)endPress
+{
+    NSLog(@"%s", __FUNCTION__);
+    [_countDownTimer invalidate];
+    if (self.status == RecordingStatusStartingRecording) {
+        [self finishRecording];
+    }
+}
+
+- (void)dragEnter
+{
+    NSLog(@"%s", __FUNCTION__);
+   
+}
+
+- (void)dragExit
+{
+    NSLog(@"%s", __FUNCTION__);
+    NSLog(@"松手取消");
+}
+
+- (void)endRecording
+{
+    self.status = RecordingStatusStoppingRecording;
+    [self finishRecording];
     
 }
 
@@ -209,7 +305,7 @@ AVCaptureAudioDataOutputSampleBufferDelegate
             return;
         }
         
-        AVCaptureDevice *captureDevice = [ViewController deviceWithMediaType:AVMediaTypeVideo preferringPosition:AVCaptureDevicePositionBack];
+        AVCaptureDevice *captureDevice = [WeChatViewController deviceWithMediaType:AVMediaTypeVideo preferringPosition:AVCaptureDevicePositionBack];
         
         _captureDevice = captureDevice;
         
@@ -253,7 +349,7 @@ AVCaptureAudioDataOutputSampleBufferDelegate
         
         if ( [self.session canAddInput:audioDeviceInput] ) {
             [self.session addInput:audioDeviceInput];
-    
+            
         }
         else {
             NSLog( @"Could not add audio device input to the session" );
@@ -285,7 +381,7 @@ AVCaptureAudioDataOutputSampleBufferDelegate
             
             _videoConnection.videoOrientation = initialVideoOrientation;
         }
-
+        
         //        output.videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
         //                                AVVideoCodecH264, AVVideoCodecKey,
         //                                [NSNumber numberWithInt:300], AVVideoWidthKey,
@@ -293,9 +389,9 @@ AVCaptureAudioDataOutputSampleBufferDelegate
         //                                AVVideoScalingModeResizeAspectFill,AVVideoScalingModeKey,
         //
         //                                nil];
-   
         
-
+        
+        
         AVCaptureAudioDataOutput *audioOut = [[AVCaptureAudioDataOutput alloc] init];
         // Put audio on its own queue to ensure that our video processing doesn't cause us to drop audio
         dispatch_queue_t audioCaptureQueue = dispatch_queue_create( "com.apple.sample.capturepipeline.audio", DISPATCH_QUEUE_SERIAL );
@@ -381,13 +477,13 @@ AVCaptureAudioDataOutputSampleBufferDelegate
             }
             else {
                 dispatch_async( dispatch_get_main_queue(), ^{
-//                    self.resumeButton.hidden = NO;
+                    //                    self.resumeButton.hidden = NO;
                 } );
             }
         } );
     }
     else {
-//        self.resumeButton.hidden = NO;
+        //        self.resumeButton.hidden = NO;
     }
 }
 
@@ -411,10 +507,10 @@ AVCaptureAudioDataOutputSampleBufferDelegate
         }
         else if ( reason == AVCaptureSessionInterruptionReasonVideoDeviceNotAvailableWithMultipleForegroundApps ) {
             // Simply fade-in a label to inform the user that the camera is unavailable.
-//            self.cameraUnavailableLabel.hidden = NO;
-//            self.cameraUnavailableLabel.alpha = 0.0;
+            //            self.cameraUnavailableLabel.hidden = NO;
+            //            self.cameraUnavailableLabel.alpha = 0.0;
             [UIView animateWithDuration:0.25 animations:^{
-//                self.cameraUnavailableLabel.alpha = 1.0;
+                //                self.cameraUnavailableLabel.alpha = 1.0;
             }];
         }
     }
@@ -425,10 +521,10 @@ AVCaptureAudioDataOutputSampleBufferDelegate
     
     if ( showResumeButton ) {
         // Simply fade-in a button to enable the user to try to resume the session running.
-//        self.resumeButton.hidden = NO;
-//        self.resumeButton.alpha = 0.0;
+        //        self.resumeButton.hidden = NO;
+        //        self.resumeButton.alpha = 0.0;
         [UIView animateWithDuration:0.25 animations:^{
-//            self.resumeButton.alpha = 1.0;
+            //            self.resumeButton.alpha = 1.0;
         }];
     }
 }
@@ -437,20 +533,20 @@ AVCaptureAudioDataOutputSampleBufferDelegate
 {
     NSLog( @"Capture session interruption ended" );
     
-//    if ( ! self.resumeButton.hidden ) {
-//        [UIView animateWithDuration:0.25 animations:^{
-//            self.resumeButton.alpha = 0.0;
-//        } completion:^( BOOL finished ) {
-//            self.resumeButton.hidden = YES;
-//        }];
-//    }
-//    if ( ! self.cameraUnavailableLabel.hidden ) {
-//        [UIView animateWithDuration:0.25 animations:^{
-//            self.cameraUnavailableLabel.alpha = 0.0;
-//        } completion:^( BOOL finished ) {
-//            self.cameraUnavailableLabel.hidden = YES;
-//        }];
-//    }
+    //    if ( ! self.resumeButton.hidden ) {
+    //        [UIView animateWithDuration:0.25 animations:^{
+    //            self.resumeButton.alpha = 0.0;
+    //        } completion:^( BOOL finished ) {
+    //            self.resumeButton.hidden = YES;
+    //        }];
+    //    }
+    //    if ( ! self.cameraUnavailableLabel.hidden ) {
+    //        [UIView animateWithDuration:0.25 animations:^{
+    //            self.cameraUnavailableLabel.alpha = 0.0;
+    //        } completion:^( BOOL finished ) {
+    //            self.cameraUnavailableLabel.hidden = YES;
+    //        }];
+    //    }
 }
 
 #pragma mark Device Configuration
@@ -520,249 +616,22 @@ AVCaptureAudioDataOutputSampleBufferDelegate
 }
 
 #pragma mark - Actions
-
-- (IBAction)still:(id)sender {
-    
-    dispatch_async(self.sessionQueue, ^{
-
-        AVCaptureConnection *connection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
-        AVCaptureVideoPreviewLayer *previewLayer = self.previewView.previewLayer;
-        
-        // Update the orientation on the still image output video connection before capturing.
-        connection.videoOrientation = previewLayer.connection.videoOrientation;
-        
-        // Flash set to Auto for Still Capture.
-        [ViewController setFlashMode:AVCaptureFlashModeAuto forDevice:self.videoDeviceInput.device];
-        
-        // Capture a still image.
-        [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:^( CMSampleBufferRef imageDataSampleBuffer, NSError *error ) {
-            if ( imageDataSampleBuffer ) {
-                // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
-                NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
-                [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
-                    if ( status == PHAuthorizationStatusAuthorized ) {
-                        // To preserve the metadata, we create an asset from the JPEG NSData representation.
-                        // Note that creating an asset from a UIImage discards the metadata.
-                        // In iOS 9, we can use -[PHAssetCreationRequest addResourceWithType:data:options].
-                        // In iOS 8, we save the image to a temporary file and use +[PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:].
-                        if ( [PHAssetCreationRequest class] ) {
-                            [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-                                [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:imageData options:nil];
-                            } completionHandler:^( BOOL success, NSError *error ) {
-                                if ( ! success ) {
-                                    NSLog( @"Error occurred while saving image to photo library: %@", error );
-                                }
-                            }];
-                        }
-                        else {
-                            NSString *temporaryFileName = [NSProcessInfo processInfo].globallyUniqueString;
-                            NSString *temporaryFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[temporaryFileName stringByAppendingPathExtension:@"jpg"]];
-                            NSURL *temporaryFileURL = [NSURL fileURLWithPath:temporaryFilePath];
-                            
-                            [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-                                NSError *error = nil;
-                                [imageData writeToURL:temporaryFileURL options:NSDataWritingAtomic error:&error];
-                                if ( error ) {
-                                    NSLog( @"Error occured while writing image data to a temporary file: %@", error );
-                                }
-                                else {
-                                    [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:temporaryFileURL];
-                                }
-                            } completionHandler:^( BOOL success, NSError *error ) {
-                                if ( ! success ) {
-                                    NSLog( @"Error occurred while saving image to photo library: %@", error );
-                                }
-                                
-                                // Delete the temporary file.
-                                [[NSFileManager defaultManager] removeItemAtURL:temporaryFileURL error:nil];
-                            }];
-                        }
-                    }
-                }];
-            }
-            else {
-                NSLog( @"Could not capture still image: %@", error );
-            }
-        }];
-    });
-    
-
-    
-}
-
-
-- (IBAction)recording:(id)sender {
-    
-    self.cameraButton.enabled = NO;
-    
-    if (self.isRecording) {
-
-//        [self.videoInput markAsFinished];
-//        
-//        [self.videoWriter finishWritingWithCompletionHandler:^{
-//            NSLog(@"写完了");
-//
-//        }];
-        [self.recorder finishRecording];
-        self.recording = NO;
-    }else{
-
-        [self.recorder prepareRecording];
-        
-//        NSString *filePath = [[self.videoWriter.outputURL absoluteString] stringByReplacingOccurrencesOfString:@"file://" withString:@""];
-//        BOOL isDirectory = NO;
-//        if ([[NSFileManager defaultManager] fileExistsAtPath:filePath isDirectory:&isDirectory]) {
-//            if ([[NSFileManager defaultManager] removeItemAtURL:self.videoWriter.outputURL error:nil]) {
-//                NSLog(@"");
-//            }
-//        }
-//      [self initVideoAudioWriter];
-        
-        
-//        switch (self.videoWriter.status) {
-//            case AVAssetWriterStatusUnknown:{
-//                [self.videoWriter startWriting];
-//            }
-//                
-//                break;
-//                
-//            default:
-//            {
-//                
-//            }
-//                break;
-//        }
-    
-        self.recording = YES;
-        _haveStartedSession = NO;
-    }
-}
-
-- (IBAction)changeCamera:(id)sender {
-    dispatch_async(self.sessionQueue, ^{
-        
-        AVCaptureDevice *captureDevice           = self.videoDeviceInput.device;
-
-        AVCaptureDevicePosition preferredPostion = AVCaptureDevicePositionUnspecified;
-        AVCaptureDevicePosition currentPosotion  = captureDevice.position;
-        
-        switch (currentPosotion) {
-            case AVCaptureDevicePositionUnspecified:
-            case AVCaptureDevicePositionFront: {
-                preferredPostion = AVCaptureDevicePositionBack;
-                break;
-            }
-            case AVCaptureDevicePositionBack: {
-                preferredPostion = AVCaptureDevicePositionFront;
-                break;
-            }
-        }
-        
-        AVCaptureDevice *newDevice = [ViewController deviceWithMediaType:AVMediaTypeVideo preferringPosition:preferredPostion];
-        NSError *error = nil;
-        AVCaptureDeviceInput *newDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:newDevice error:&error];
-        
-        [self.session beginConfiguration];
-        
-        [self.session removeInput:self.videoDeviceInput];
-        
-        if ([self.session canAddInput:newDeviceInput]) {
-            //TODO: 通知处理
-            
-            //设置闪光模式
-            [ViewController setFlashMode:AVCaptureFlashModeAuto forDevice:newDevice];
-            
-            
-            [self.session addInput:newDeviceInput];
-            
-            self.videoDeviceInput = newDeviceInput;
-            
-            AVCaptureConnection *connection = [self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo];
-            
-            if ([connection isVideoStabilizationSupported]) {
-                connection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeAuto;
-            }
-            
-        }
-        else{
-            [self.session addInput:self.videoDeviceInput];
-        }
-        
-        
-        //重置输入
-        [_session removeOutput:self.videoDataOutput];
-        
-        _videoDataOutputQueue = dispatch_queue_create( "com.apple.sample.capturepipeline.video", DISPATCH_QUEUE_SERIAL );
-        dispatch_set_target_queue( _videoDataOutputQueue, dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_HIGH, 0 ) );
-        
-        AVCaptureVideoDataOutput *videoOut = [[AVCaptureVideoDataOutput alloc] init];
-        _videoDataOutput = videoOut;
-        videoOut.videoSettings = @{ (id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
-        [videoOut setSampleBufferDelegate:self queue:_videoDataOutputQueue];
-        
-        videoOut.alwaysDiscardsLateVideoFrames = NO;
-        
-        
-        
-        if ( [_session canAddOutput:videoOut] ) {
-            [_session addOutput:videoOut];
-            _videoConnection = [videoOut connectionWithMediaType:AVMediaTypeVideo];
-            
-            if(_videoConnection.isVideoStabilizationSupported){
-                _videoConnection.preferredVideoStabilizationMode = AVCaptureVideoStabilizationModeAuto;
-            }
-            
-            UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
-            AVCaptureVideoOrientation initialVideoOrientation = AVCaptureVideoOrientationPortrait;
-            if ( statusBarOrientation != UIInterfaceOrientationUnknown ) {
-                initialVideoOrientation = (AVCaptureVideoOrientation)statusBarOrientation;
-            }
-            
-            _videoConnection.videoOrientation = initialVideoOrientation;
-        }
-
-        [self.session commitConfiguration];
-        
-    });
-}
-
-- (IBAction)play:(id)sender {
-}
-
-
-#pragma mark - AVCaptureFileOutputRecordingDelegate
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didStartRecordingToOutputFileAtURL:(NSURL *)fileURL fromConnections:(NSArray *)connections
+- (void)benginRecording
 {
-    self.cameraButton.enabled = YES;
+    [self.recorder setCropSize:self.previewView.bounds.size];
+    [self.recorder prepareRecording];
+    self.status = RecordingStatusStartingRecording;
+    
+    
+    
+    _haveStartedSession = NO;
 }
 
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
+
+- (void)finishRecording
 {
-    NSLog(@"%lu", (unsigned long)self.backgroundRecordingID);
-    UIBackgroundTaskIdentifier currentBackgroundRecordingID = self.backgroundRecordingID;
-    self.backgroundRecordingID = UIBackgroundTaskInvalid;
-    
-    dispatch_block_t cleanup = ^{
-        [[NSFileManager defaultManager] removeItemAtURL:outputFileURL error:nil];
-        if ( currentBackgroundRecordingID != UIBackgroundTaskInvalid ) {
-            [[UIApplication sharedApplication] endBackgroundTask:currentBackgroundRecordingID];
-        }
-    };
-    BOOL success = YES;
-    
-    if ( error ) {
-        NSLog( @"Movie file finishing error: %@", error );
-        success = [error.userInfo[AVErrorRecordingSuccessfullyFinishedKey] boolValue];
-    }
-    
-    if ( success ) {
-        
-        [self filePath:[outputFileURL absoluteString]];
-        
-    }
-    else {
-        cleanup();
-    }
+    self.status = RecordingStatusStoppingRecording;
+    [self.recorder finishRecording];
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate
@@ -771,7 +640,7 @@ AVCaptureAudioDataOutputSampleBufferDelegate
 {
     CMFormatDescriptionRef formatDescription = CMSampleBufferGetFormatDescription( sampleBuffer );
     
-    if (self.isRecording) {
+    if (self.status == RecordingStatusStartingRecording) {
         if ( connection == _videoConnection )
         {
             if ( self.outputVideoFormatDescription == nil ) {
@@ -787,16 +656,16 @@ AVCaptureAudioDataOutputSampleBufferDelegate
             else {
                 if (!_haveStartedSession) {
                     _haveStartedSession = YES;
-
+                
                     
                     [self.recorder appendVideoBuffer:sampleBuffer];
                     
                 }else{
-                    
-                    [self.recorder appendVideoBuffer:sampleBuffer];
-
-                }
                 
+                    [self.recorder appendVideoBuffer:sampleBuffer];
+                
+                }
+            
             }
         }
         else if ( connection == _audioConnection )
@@ -804,9 +673,9 @@ AVCaptureAudioDataOutputSampleBufferDelegate
             self.outputAudioFormatDescription = formatDescription;
             
             @synchronized( self ) {
-
-                    [self.recorder appendAudioBuffer:sampleBuffer];
-
+                
+                [self.recorder appendAudioBuffer:sampleBuffer];
+                
             }
             
         }
@@ -853,178 +722,9 @@ AVCaptureAudioDataOutputSampleBufferDelegate
     }
 }
 
-#pragma mark - CropVideo
-- (void)filePath:(NSString *)filePath
+#pragma mark - WKMovieRecorderDelegate
+- (void)movieRecorderDidFinishRecording:(WKMovieRecorder *)recorder
 {
-    // output file
-    NSString* docFolder = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
-    NSString* outputPath = [docFolder stringByAppendingPathComponent:@"output2.mov"];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:outputPath])
-        [[NSFileManager defaultManager] removeItemAtPath:outputPath error:nil];
-    
-    // input file
-    AVAsset* asset = [AVAsset assetWithURL:[NSURL URLWithString:filePath]];
-    
-    AVMutableComposition *composition = [AVMutableComposition composition];
-    [composition  addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-    
-    // input clip
-    AVAssetTrack *clipVideoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-    
-    // make it square
-    AVMutableVideoComposition* videoComposition = [AVMutableVideoComposition videoComposition];
-    videoComposition.renderSize = CGSizeMake(300, 200);
-    videoComposition.frameDuration = CMTimeMake(1, 30);
-    
-    AVMutableVideoCompositionInstruction *instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
-    instruction.timeRange = CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(60, 30) );
-    
-    // rotate to portrait
-    AVMutableVideoCompositionLayerInstruction* transformer = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:clipVideoTrack];
-//    CGAffineTransform t1 = CGAffineTransformMakeTranslation(300, -(200- 300) /2 );
-//    CGAffineTransform t2 = CGAffineTransformRotate(t1, M_PI_2);
-    
-//    CGAffineTransform finalTransform = t2;
-//    [transformer setTransform:finalTransform atTime:kCMTimeZero];
-//    instruction.layerInstructions = [NSArray arrayWithObject:transformer];
-    videoComposition.instructions = [NSArray arrayWithObject: instruction];
-    
-    // export
-    AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality] ;
-    exporter.videoComposition = videoComposition;
-    exporter.outputURL=[NSURL fileURLWithPath:outputPath];
-    exporter.outputFileType=AVFileTypeQuickTimeMovie;
-    
-    [exporter exportAsynchronouslyWithCompletionHandler:^(void){
-        NSLog(@"%@", exporter);
-        NSLog(@"Exporting done!");
-        [PHPhotoLibrary requestAuthorization:^( PHAuthorizationStatus status ) {
-                        if ( status == PHAuthorizationStatusAuthorized ) {
-                            // Save the movie file to the photo library and cleanup.
-                            [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-                                // In iOS 9 and later, it's possible to move the file into the photo library without duplicating the file data.
-                                // This avoids using double the disk space during save, which can make a difference on devices with limited free disk space.
-                                if ( [PHAssetResourceCreationOptions class] ) {
-                                    PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
-                                    options.shouldMoveFile = YES;
-                                    PHAssetCreationRequest *changeRequest = [PHAssetCreationRequest creationRequestForAsset];
-                                    [changeRequest addResourceWithType:PHAssetResourceTypeVideo fileURL:[NSURL fileURLWithPath:outputPath] options:options];
-                                }
-                                else {
-                                    [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:[NSURL fileURLWithPath:outputPath]];
-                                }
-                            } completionHandler:^( BOOL success, NSError *error ) {
-                                if ( ! success ) {
-                                    NSLog( @"Could not save movie to photo library: %@", error );
-                                }
-                                
-                            }];
-                        }
-                        else {
-                            
-                        }
-                    }];
-
-    }];
-    
+    self.status = RecordingStatusIdle;
 }
-
--(void) initVideoAudioWriter
-{
-    //视频图像范围
-//    CGSize size = CGSizeMake(200, 200); 
-    
-    //刻录视频文件生成路径
-    NSString *betaCompressionDirectory = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Movie.MOV"];
-    
-    NSError *error = nil;
-    
-    unlink([betaCompressionDirectory UTF8String]);
-    //添加图像输入
-    //--------------------------------------------初始化刻录机--------------------------------------------
-    self.videoWriter = [[AVAssetWriter alloc] initWithURL:[NSURL fileURLWithPath:betaCompressionDirectory]
-                                                 fileType:AVFileTypeQuickTimeMovie
-                                                    error:&error];
-    NSParameterAssert(self.videoWriter);
-    
-    if(error) NSLog(@"error = %@", [error localizedDescription]);
-    //--------------------------------------------------------------------------------------------------
-    
-    
-    
-    
-    
-    //--------------------------------------------初始化图像信息输入参数--------------------------------------------
-    NSDictionary *videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   AVVideoCodecH264, AVVideoCodecKey,
-                                   [NSNumber numberWithInt:300], AVVideoWidthKey,
-                                   [NSNumber numberWithInt:200],AVVideoHeightKey,
-                                   AVVideoScalingModeResizeAspectFill,AVVideoScalingModeKey,
-                                   nil];
-    
-    self.videoInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo outputSettings:videoSettings];
-    NSParameterAssert(self.videoInput);
-    self.videoInput.expectsMediaDataInRealTime = YES;
-    //--------------------------------------------------------------------------------------------------
-    
-    
-    
-    
-    
-    //--------------------------------------------缓冲区参数设置--------------------------------------------
-    NSDictionary *sourcePixelBufferAttributesDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-                                                           [NSNumber numberWithInt:kCVPixelFormatType_32ARGB], kCVPixelBufferPixelFormatTypeKey, nil];
-    
-    self.adaptor = [AVAssetWriterInputPixelBufferAdaptor assetWriterInputPixelBufferAdaptorWithAssetWriterInput:self.videoInput
-                    
-                                                                                    sourcePixelBufferAttributes:sourcePixelBufferAttributesDictionary];
-    
-    NSParameterAssert(self.videoInput);
-    
-    NSParameterAssert([self.videoWriter canAddInput:self.videoInput]);
-    //--------------------------------------------------------------------------------------------------
-    
-    
-    
-    //添加音频输入
-    
-    AudioChannelLayout acl;
-    
-    bzero( &acl, sizeof(acl));
-    
-    acl.mChannelLayoutTag = kAudioChannelLayoutTag_Mono;
-    
-    
-    //音频配置
-    NSDictionary* audioOutputSettings = nil;
-    audioOutputSettings = [ NSDictionary dictionaryWithObjectsAndKeys:
-                           
-                           [ NSNumber numberWithInt: kAudioFormatMPEG4AAC ], AVFormatIDKey,
-                           
-                           [ NSNumber numberWithInt:64000], AVEncoderBitRateKey,
-                           
-                           [ NSNumber numberWithFloat: 44100.0 ], AVSampleRateKey,
-                           
-                           [ NSNumber numberWithInt: 1 ], AVNumberOfChannelsKey,
-                           
-                           [ NSData dataWithBytes: &acl length: sizeof( acl ) ], AVChannelLayoutKey,
-                           
-                           nil ];
-    
-    
-    
-    self.audioInput = [AVAssetWriterInput  assetWriterInputWithMediaType: AVMediaTypeAudio
-                                                                outputSettings: audioOutputSettings];
-    self.audioInput.expectsMediaDataInRealTime = YES;
-    
-    
-    
-    //图像和语音输入添加到刻录机
-    [self.videoWriter addInput:self.audioInput];
-    
-    [self.videoWriter addInput:self.videoInput];
-    
-}
-
-
 @end

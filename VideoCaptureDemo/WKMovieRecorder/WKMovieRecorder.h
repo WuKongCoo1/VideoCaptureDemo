@@ -9,23 +9,30 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
+@class WKMovieRecorder;
+
+@protocol WKMovieRecorderDelegate <NSObject>
+
+- (void)movieRecorderDidFinishRecording:(WKMovieRecorder *)recorder;
+
+@end
 
 @interface WKMovieRecorder : NSObject
 
+@property (nonatomic, weak) id<WKMovieRecorderDelegate> delegate;
+
 - (instancetype)initWithURL:(NSURL *)URL;
 
-// Only one audio and video track each are allowed.
-- (void)addVideoTrackWithSourceFormatDescription:(CMFormatDescriptionRef)formatDescription transform:(CGAffineTransform)transform settings:(NSDictionary *)videoSettings; // see AVVideoSettings.h for settings keys/values
-- (void)addAudioTrackWithSourceFormatDescription:(CMFormatDescriptionRef)formatDescription settings:(NSDictionary *)audioSettings; // see AVAudioSettings.h for settings keys/values
+- (instancetype)initWithURL:(NSURL *)URL cropSize:(CGSize)cropSize;
 
-//- (void)setDelegate:(id<MovieRecorderDelegate>)delegate callbackQueue:(dispatch_queue_t)delegateCallbackQueue; // delegate is weak referenced
+- (void)setCropSize:(CGSize)size;
 
-- (void)prepareToRecord; // Asynchronous, might take several hundred milliseconds. When finished the delegate's recorderDidFinishPreparing: or recorder:didFailWithError: method will be called.
+- (void)prepareRecording;
 
-- (void)appendVideoSampleBuffer:(CMSampleBufferRef)sampleBuffer;
-- (void)appendVideoPixelBuffer:(CVPixelBufferRef)pixelBuffer withPresentationTime:(CMTime)presentationTime;
-- (void)appendAudioSampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (void)finishRecording;
 
-- (void)finishRecording; // Asynchronous, might take several hundred milliseconds. When finished the delegate's recorderDidFinishRecording: or recorder:didFailWithError: method will be called.
+- (void)appendAudioBuffer:(CMSampleBufferRef)sampleBuffer;
+
+- (void)appendVideoBuffer:(CMSampleBufferRef)sampleBuffer;
 
 @end
