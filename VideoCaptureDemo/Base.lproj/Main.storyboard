@@ -231,8 +231,17 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9nT-SR-lHy" customClass="WKPreviewView">
                                 <rect key="frame" x="0.0" y="64" width="600" height="400"/>
+                                <subviews>
+                                    <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="向上滑动取消" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cbr-be-rSY">
+                                        <rect key="frame" x="249" y="354" width="102" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" red="0.30788590599999999" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
+                                    <constraint firstItem="cbr-be-rSY" firstAttribute="centerX" secondItem="9nT-SR-lHy" secondAttribute="centerX" id="0Xa-s3-fNg"/>
                                     <constraint firstAttribute="width" constant="300" id="71g-ZN-nu9"/>
                                     <constraint firstAttribute="width" constant="320" id="BFr-3Z-Gat"/>
                                     <constraint firstAttribute="width" secondItem="9nT-SR-lHy" secondAttribute="height" multiplier="4:1" placeholder="YES" id="Guh-Xv-QJ7"/>
@@ -241,6 +250,7 @@
                                     <constraint firstAttribute="width" secondItem="9nT-SR-lHy" secondAttribute="height" multiplier="1.5" id="RdB-IP-KGv"/>
                                     <constraint firstAttribute="width" secondItem="9nT-SR-lHy" secondAttribute="height" multiplier="2" id="UIp-ia-aT3"/>
                                     <constraint firstAttribute="width" constant="300" id="aDi-1Z-IZo"/>
+                                    <constraint firstAttribute="bottom" secondItem="cbr-be-rSY" secondAttribute="bottom" constant="25" id="oHe-BN-5av"/>
                                     <constraint firstAttribute="height" constant="150" placeholder="YES" id="qdK-gE-g0c"/>
                                     <constraint firstAttribute="height" constant="300" id="sj2-i8-azv"/>
                                 </constraints>
@@ -258,13 +268,12 @@
                                     </mask>
                                 </variation>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2tv-zI-2Pi">
-                                <rect key="frame" x="260" y="470" width="80" height="80"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2tv-zI-2Pi" customClass="WKScaleButton">
+                                <rect key="frame" x="240" y="430" width="120" height="120"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="80" id="5Ap-xQ-Dxb"/>
-                                    <constraint firstAttribute="height" constant="80" id="ySn-hy-eBt"/>
+                                    <constraint firstAttribute="width" constant="120" id="5Ap-xQ-Dxb"/>
+                                    <constraint firstAttribute="height" constant="120" id="ySn-hy-eBt"/>
                                 </constraints>
-                                <state key="normal" title="长按录像"/>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ght-V3-93a">
                                 <rect key="frame" x="209" y="522" width="30" height="30"/>
@@ -371,6 +380,7 @@
                         <outlet property="longPressButton" destination="2tv-zI-2Pi" id="7by-XR-kcI"/>
                         <outlet property="previewView" destination="9nT-SR-lHy" id="Dfv-rM-VOo"/>
                         <outlet property="recordingButton" destination="AAw-Bh-biS" id="GdH-h1-ZkO"/>
+                        <outlet property="statusLabel" destination="cbr-be-rSY" id="nAc-g7-o9A"/>
                         <outlet property="stillButton" destination="Ght-V3-93a" id="g44-oC-XN1"/>
                     </connections>
                 </viewController>

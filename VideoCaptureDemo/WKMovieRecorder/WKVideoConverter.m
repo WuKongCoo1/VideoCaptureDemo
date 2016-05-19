@@ -10,6 +10,13 @@
 #import <AVFoundation/AVFoundation.h>
 #import <UIKit/UIKit.h>
 
+typedef NS_ENUM(NSInteger, WKConvertType) {
+    WKConvertTypeImage,
+    WKConvertTypeImages
+};
+
+typedef id (^HandleBlcok)(AVAssetReaderTrackOutput *outPut, AVAssetTrack *videoTrack);
+
 @interface WKVideoConverter ()
 
 @property (nonatomic, strong) AVAssetReader *reader;
@@ -30,7 +37,7 @@
     
 }
 
-- (void)convertVideoToImagesWithURL:(NSURL *)url finishBlock:(void (^)(NSArray *))finishBlock
+- (void)convertVideoToImagesWithURL:(NSURL *)url finishBlock:(void (^)(id))finishBlock
 {
     AVAsset *asset = [AVAsset assetWithURL:url];
     NSError *error = nil;
@@ -68,7 +75,11 @@
         // 要确保nominalFrameRate>0，之前出现过android拍的0帧视频
         
         NSMutableArray *images = [NSMutableArray array];
+        CGFloat seconds = CMTimeGetSeconds(videoTrack.timeRange.duration);
+        CGFloat totalFrame = videoTrack.nominalFrameRate * seconds;
+        NSLog(@"%f", totalFrame);
         
+        NSInteger convertedCount = 0;
         while ([strongSelf.reader status] == AVAssetReaderStatusReading && videoTrack.nominalFrameRate > 0) {
             // 读取 video sample
             CMSampleBufferRef videoBuffer = [videoReaderOutput copyNextSampleBuffer];
@@ -93,6 +104,14 @@
             }
             // 根据需要休眠一段时间；比如上层播放视频时每帧之间是有间隔的,这里的 sampleInternal 我设置为0.001秒
             [NSThread sleepForTimeInterval:0.001];
+            
+            CGFloat process = ++convertedCount / totalFrame;
+            
+            NSLog(@"process : %f", process);
+            
+            if ([self.delegate respondsToSelector:@selector(videoConverter:process:)]) {
+                [self.delegate videoConverter:self process:process];
+            }
         }
         
         if (finishBlock) {
@@ -103,8 +122,265 @@
         }
 
     });
-
 }
+
+- (void)convertVideoFirstFrameWithURL:(NSURL *)url finishBlock:(void (^)(id))finishBlock
+{
+    AVAsset *asset = [AVAsset assetWithURL:url];
+    NSError *error = nil;
+    self.reader = [[AVAssetReader alloc] initWithAsset:asset error:&error];
+    __weak typeof(self)weakSelf = self;
+    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_async(backgroundQueue, ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        NSLog(@"");
+        
+        
+        if (error) {
+            NSLog(@"%@", [error localizedDescription]);
+            
+        }
+        
+        NSArray *videoTracks = [asset tracksWithMediaType:AVMediaTypeVideo];
+        
+        AVAssetTrack *videoTrack =[videoTracks firstObject];
+        if (!videoTrack) {
+            return ;
+        }
+        int m_pixelFormatType;
+        //     视频播放时，
+        m_pixelFormatType = kCVPixelFormatType_32BGRA;
+        // 其他用途，如视频压缩
+        //    m_pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange;
+        
+        NSMutableDictionary *options = [NSMutableDictionary dictionary];
+        [options setObject:@(m_pixelFormatType) forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+        AVAssetReaderTrackOutput *videoReaderOutput = [[AVAssetReaderTrackOutput alloc] initWithTrack:videoTrack outputSettings:options];
+        [strongSelf.reader addOutput:videoReaderOutput];
+        [strongSelf.reader startReading];
+        
+        
+        UIImage *image;
+        // 要确保nominalFrameRate>0，之前出现过android拍的0帧视频
+        while ([strongSelf.reader status] == AVAssetReaderStatusReading && videoTrack.nominalFrameRate > 0) {
+            // 读取 video sample
+            CMSampleBufferRef videoBuffer = [videoReaderOutput copyNextSampleBuffer];
+            
+            CGImageRef cgimage = [WKVideoConverter imageFromSampleBufferRef:videoBuffer];
+            
+            
+            
+            if (!(__bridge id)(cgimage))
+            {
+                break;
+            }
+            
+            image = [UIImage imageWithCGImage:cgimage];
+            
+            
+            
+            CGImageRelease(cgimage);
+            if (videoBuffer) {
+                
+                CMSampleBufferInvalidate(videoBuffer);
+                CFRelease(videoBuffer);
+                videoBuffer = NULL;
+            }
+            
+            if (image) {
+                break;
+            }
+            
+            
+        
+        }
+        
+        if (finishBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                finishBlock(image);
+            });
+        }
+    });
+}
+
+- (void)convertVideoFirstFrameWithURL:(NSURL *)url handleBlock:(HandleBlcok)handleBlock finishBlock:(void (^)(id))finishBlock
+{
+    AVAsset *asset = [AVAsset assetWithURL:url];
+    NSError *error = nil;
+    self.reader = [[AVAssetReader alloc] initWithAsset:asset error:&error];
+    __weak typeof(self)weakSelf = self;
+    dispatch_queue_t backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
+    dispatch_async(backgroundQueue, ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        NSLog(@"");
+        
+        
+        if (error) {
+            NSLog(@"%@", [error localizedDescription]);
+            
+        }
+        
+        NSArray *videoTracks = [asset tracksWithMediaType:AVMediaTypeVideo];
+        
+        AVAssetTrack *videoTrack =[videoTracks firstObject];
+        if (!videoTrack) {
+            return ;
+        }
+        int m_pixelFormatType;
+        //     视频播放时，
+        m_pixelFormatType = kCVPixelFormatType_32BGRA;
+        // 其他用途，如视频压缩
+        //    m_pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange;
+        
+        NSMutableDictionary *options = [NSMutableDictionary dictionary];
+        [options setObject:@(m_pixelFormatType) forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+        AVAssetReaderTrackOutput *videoReaderOutput = [[AVAssetReaderTrackOutput alloc] initWithTrack:videoTrack outputSettings:options];
+        [strongSelf.reader addOutput:videoReaderOutput];
+        [strongSelf.reader startReading];
+        
+        
+        UIImage *image;
+        // 要确保nominalFrameRate>0，之前出现过android拍的0帧视频
+        while ([strongSelf.reader status] == AVAssetReaderStatusReading && videoTrack.nominalFrameRate > 0) {
+            // 读取 video sample
+            CMSampleBufferRef videoBuffer = [videoReaderOutput copyNextSampleBuffer];
+            
+            CGImageRef cgimage = [WKVideoConverter imageFromSampleBufferRef:videoBuffer];
+            
+            
+            
+            if (!(__bridge id)(cgimage))
+            {
+                break;
+            }
+            
+            image = [UIImage imageWithCGImage:cgimage];
+            
+            
+            
+            CGImageRelease(cgimage);
+            if (videoBuffer) {
+                
+                CMSampleBufferInvalidate(videoBuffer);
+                CFRelease(videoBuffer);
+                videoBuffer = NULL;
+            }
+            
+            if (image) {
+                break;
+            }
+            
+            
+            
+        }
+        
+        if (finishBlock) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                finishBlock(image);
+            });
+        }
+    });
+}
+
+- (HandleBlcok)convertVideoWithVideoReaderOutput:(AVAssetReaderOutput *)videoReaderOutput videoTrack:(AVAssetTrack *)videoTrack type:(WKConvertType)type
+{
+    
+    HandleBlcok block;
+    
+    switch (type) {
+        case WKConvertTypeImage: {
+            block = ^(AVAssetReaderOutput *videoReaderOutput, AVAssetTrack *videoTrack){
+                UIImage *image;
+                // 要确保nominalFrameRate>0，之前出现过android拍的0帧视频
+                while ([self.reader status] == AVAssetReaderStatusReading && videoTrack.nominalFrameRate > 0) {
+                    // 读取 video sample
+                    CMSampleBufferRef videoBuffer = [videoReaderOutput copyNextSampleBuffer];
+                    
+                    CGImageRef cgimage = [WKVideoConverter imageFromSampleBufferRef:videoBuffer];
+                    
+                    
+                    
+                    if (!(__bridge id)(cgimage))
+                    {
+                        break;
+                    }
+                    
+                    image = [UIImage imageWithCGImage:cgimage];
+                    
+                    
+                    
+                    CGImageRelease(cgimage);
+                    if (videoBuffer) {
+                        
+                        CMSampleBufferInvalidate(videoBuffer);
+                        CFRelease(videoBuffer);
+                        videoBuffer = NULL;
+                    }
+                    
+                    if (image) {
+                        return image;
+                    }
+                }
+                return [[UIImage alloc] init];
+            };
+
+            break;
+        }
+        case WKConvertTypeImages: {//图片
+            
+            block = ^(AVAssetReaderOutput *videoReaderOutput, AVAssetTrack *videoTrack){
+                NSMutableArray *images = [NSMutableArray array];
+                CGFloat seconds = CMTimeGetSeconds(videoTrack.timeRange.duration);
+                CGFloat totalFrame = videoTrack.nominalFrameRate * seconds;
+                NSLog(@"%f", totalFrame);
+                
+                NSInteger convertedCount = 0;
+                while ([self.reader status] == AVAssetReaderStatusReading && videoTrack.nominalFrameRate > 0) {
+                    // 读取 video sample
+                    CMSampleBufferRef videoBuffer = [videoReaderOutput copyNextSampleBuffer];
+                    
+                    CGImageRef cgimage = [WKVideoConverter imageFromSampleBufferRef:videoBuffer];
+                    
+                    
+                    
+                    if (!(__bridge id)(cgimage))
+                    {
+                        break;
+                    }
+                    
+                    [images addObject:((__bridge id)(cgimage))];
+                    
+                    CGImageRelease(cgimage);
+                    if (videoBuffer) {
+                        
+                        CMSampleBufferInvalidate(videoBuffer);
+                        CFRelease(videoBuffer);
+                        videoBuffer = NULL;
+                    }
+                    // 根据需要休眠一段时间；比如上层播放视频时每帧之间是有间隔的,这里的 sampleInternal 我设置为0.001秒
+                    [NSThread sleepForTimeInterval:0.001];
+                    
+                    CGFloat process = ++convertedCount / totalFrame;
+                    
+                    NSLog(@"process : %f", process);
+                    
+                    if ([self.delegate respondsToSelector:@selector(videoConverter:process:)]) {
+                        [self.delegate videoConverter:self process:process];
+                    }
+                }
+
+                return images;
+            };
+        }
+    }
+    
+    
+    return block;
+    
+    
+}
+
+
 
 + (CGImageRef)imageFromSampleBufferRef:(CMSampleBufferRef)sampleBufferRef
 {

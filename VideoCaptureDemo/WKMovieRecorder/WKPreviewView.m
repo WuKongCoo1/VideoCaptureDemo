@@ -20,15 +20,17 @@
 //    return [AVCaptureVideoPreviewLayer class];
 //}
 
+- (void)awakeFromNib
+{
+    
+}
+
 - (void)setSession:(AVCaptureSession *)session
 {
     
     [_previewLayer removeFromSuperlayer];
     _session = session;
-//    AVCaptureVideoPreviewLayer *previewLayer = (AVCaptureVideoPreviewLayer *)self.layer;
-//    previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-//    previewLayer.session = session;
-    
+
     _previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:session];
     _previewLayer.frame = self.layer.bounds;
     _previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;

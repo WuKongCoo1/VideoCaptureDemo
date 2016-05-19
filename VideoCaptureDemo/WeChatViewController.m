@@ -16,6 +16,7 @@
 #import "WKPreviewView.h"
 #import <Accelerate/Accelerate.h>
 #import "WKMovieRecorder.h"
+#import "WKScaleButton.h"
 
 @import Photos;
 
@@ -51,7 +52,7 @@ WKMovieRecorderDelegate
 @property (weak, nonatomic) IBOutlet UIButton *stillButton;
 @property (weak, nonatomic) IBOutlet UIButton *recordingButton;
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;
-@property (weak, nonatomic) IBOutlet UIButton *longPressButton;
+@property (weak, nonatomic) IBOutlet WKScaleButton *longPressButton;
 
 // Session management.
 @property (nonatomic, strong) dispatch_queue_t sessionQueue;
@@ -97,6 +98,13 @@ WKMovieRecorderDelegate
 
 @property (nonatomic,) CMSampleBufferRef currentbuffer;
 
+//preView
+//@property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
+
+//indicator
+@property (nonatomic, strong) CALayer *processLayer;
+@property (nonatomic, weak) IBOutlet UILabel *statusLabel;
+
 
 
 - (IBAction)still:(id)sender;
@@ -116,11 +124,10 @@ WKMovieRecorderDelegate
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self setupUI];
-    
     [self setup];
     
-    //    [self initVideoAudioWriter];
+    [self setupUI];
+    
     [self.view setNeedsLayout];
     [self.view layoutIfNeeded];
     
@@ -133,16 +140,21 @@ WKMovieRecorderDelegate
     
     [_recorder prepareRecording];
     
-//    self.finishRecording = YES;
-    
-    //    [self setupAVideoDataOutput];
 }
 
+- (void)viewDidLayoutSubviews
+{
+    _processLayer.bounds = CGRectMake(0, 0, CGRectGetWidth(self.previewView.bounds), 5);
+    _processLayer.position = CGPointMake(CGRectGetMidX(self.previewView.bounds), CGRectGetHeight(self.previewView.bounds) - 2.5);
+    
+    
+//
+}
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+    _processLayer.hidden = YES;
     static BOOL once = YES;
     
     if (once) {
@@ -193,17 +205,11 @@ WKMovieRecorderDelegate
 
 - (void)setupUI
 {
+    self.view.backgroundColor = [UIColor blackColor];
+    
     UIBarButtonItem *cancleItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStylePlain target:self action:@selector(cancle:)];
     
     self.navigationItem.leftBarButtonItem = cancleItem;
-    
-    
-    CALayer *longPressLayer = self.longPressButton.layer;
-    longPressLayer.masksToBounds = YES;
-    longPressLayer.borderColor = [UIColor greenColor].CGColor;
-    longPressLayer.borderWidth = 1.f;
-    longPressLayer.cornerRadius = longPressLayer.bounds.size.width / 2;
-    
     
     [self.longPressButton addTarget:self action:@selector(beginLongPress) forControlEvents:UIControlEventTouchDown];
     [self.longPressButton addTarget:self action:@selector(moveOut) forControlEvents:UIControlEventTouchUpOutside];
@@ -211,7 +217,30 @@ WKMovieRecorderDelegate
     [self.longPressButton addTarget:self action:@selector(dragEnter) forControlEvents:UIControlEventTouchDragEnter];
     [self.longPressButton addTarget:self action:@selector(dragExit) forControlEvents:UIControlEventTouchDragExit];
     
+    _processLayer = [CALayer layer];
     
+    
+    
+    
+}
+
+- (void)addAnimation
+{
+    _processLayer.hidden = NO;
+    _processLayer.backgroundColor = [UIColor cyanColor].CGColor;
+    
+    CABasicAnimation *scaleXAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale.x"];
+    scaleXAnimation.duration = 10.f;
+    scaleXAnimation.fromValue = @(1.f);
+    scaleXAnimation.toValue = @(0.f);
+    
+    [_processLayer addAnimation:scaleXAnimation forKey:@"scaleXAnimation"];
+}
+
+- (void)removeAnimation
+{
+    [_processLayer removeAllAnimations];
+    _processLayer.hidden = YES;
 }
 
 - (void)cancle:(id)sender
@@ -221,11 +250,16 @@ WKMovieRecorderDelegate
 
 - (void)beginLongPress
 {
-//    if (!self.finishRecording) {
-//        return;
-//    }
-    
     _countDownTimer = [NSTimer scheduledTimerWithTimeInterval:10.f target:self selector:@selector(endRecording) userInfo:nil repeats:NO];
+    
+    [self addAnimation];
+    
+    [self.longPressButton disappearAnimation];
+    
+    [self.previewView.layer addSublayer:_processLayer];
+    [self.previewView addSubview:_statusLabel];
+    
+    [self setStatusLableHidden:NO isOut:NO];
     
     //开始录制
     [self benginRecording];
@@ -252,11 +286,19 @@ WKMovieRecorderDelegate
 - (void)dragEnter
 {
     NSLog(@"%s", __FUNCTION__);
-   
+    _processLayer.backgroundColor = [UIColor cyanColor].CGColor;
+    
+    [self setStatusLableHidden:NO isOut:NO];
 }
 
 - (void)dragExit
 {
+    _processLayer.backgroundColor = [UIColor redColor].CGColor;
+    
+//    NSLog(@"%@", _processLayer.backgroundColor);
+    
+    [self setStatusLableHidden:NO isOut:YES];
+    
     NSLog(@"%s", __FUNCTION__);
     NSLog(@"松手取消");
 }
@@ -266,6 +308,23 @@ WKMovieRecorderDelegate
     self.status = RecordingStatusStoppingRecording;
     [self finishRecording];
     
+}
+
+- (void)setStatusLableHidden:(BOOL)hidden isOut:(BOOL)isOut
+{
+    self.statusLabel.hidden = hidden;
+    
+    if (isOut) {
+        self.statusLabel.text = @"松手取消";
+        self.statusLabel.backgroundColor = [UIColor redColor];
+        self.statusLabel.textColor = [UIColor whiteColor];
+        
+    }else{
+        
+        self.statusLabel.text = @"向上滑动取消";
+        self.statusLabel.backgroundColor = [UIColor clearColor];
+        self.statusLabel.textColor = [UIColor cyanColor];
+    }
 }
 
 - (void)setup
@@ -618,7 +677,7 @@ WKMovieRecorderDelegate
 #pragma mark - Actions
 - (void)benginRecording
 {
-    [self.recorder setCropSize:self.previewView.bounds.size];
+//    [self.recorder setCropSize:self.previewView.bounds.size];
     [self.recorder prepareRecording];
     self.status = RecordingStatusStartingRecording;
     
@@ -630,8 +689,12 @@ WKMovieRecorderDelegate
 
 - (void)finishRecording
 {
+    [self.longPressButton appearAnimation];
+    [self setStatusLableHidden:YES isOut:NO];
     self.status = RecordingStatusStoppingRecording;
     [self.recorder finishRecording];
+    
+    [self removeAnimation];
 }
 
 #pragma mark - AVCaptureVideoDataOutputSampleBufferDelegate

@@ -62,7 +62,7 @@
                                     // 确保内存能及时释放掉
                                     [images enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                                         if (obj) {
-                                            NSLog(@"%@", obj);
+//                                            NSLog(@"%@", obj);
                                             obj = nil;
                                             
                                             //            CGImageRelease((__bridge CGImageRef)obj);
@@ -78,7 +78,7 @@
         NSURL *videoFileURL = [NSURL fileURLWithPath: videoFilePath];//Convert the NSString To NSURL
         AVPlayer *player = [[AVPlayer alloc] initWithURL: videoFileURL]; // Create The AVPlayer With the URL
         AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer: player];//Place it to A Layer
-//        playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+        playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
         playerLayer.frame = CGRectMake(0, 0, 300, 200);//Create A view frame size to match the view
     playerLayer.position = self.view.center;
         [self.view.layer addSublayer: playerLayer];//Add it to Player Layer

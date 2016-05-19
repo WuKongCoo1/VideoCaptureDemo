@@ -65,7 +65,7 @@
                                     // 确保内存能及时释放掉
                                     [images enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                                         if (obj) {
-                                            NSLog(@"%@", obj);
+//                                            NSLog(@"%@", obj);
                                             obj = nil;
                                             
                                             //            CGImageRelease((__bridge CGImageRef)obj);

@@ -7,13 +7,25 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+@class WKVideoConverter;
+@protocol WKVideoConverterDelegate <NSObject>
+
+- (void)videoConverter:(WKVideoConverter *)converter process:(CGFloat)process;
+
+@end
 
 typedef void (^block)(void);
 
 @interface WKVideoConverter : NSObject
 
+@property (nonatomic, weak) id<WKVideoConverterDelegate> delegate;
+
 + (void)shareInstance;
 
-- (void)convertVideoToImagesWithURL:(NSURL *)url finishBlock:(void (^)(NSArray *images))finishBlock;
+- (void)convertVideoToImagesWithURL:(NSURL *)url finishBlock:(void (^)(id))finishBlock;
+
+- (void)convertVideoFirstFrameWithURL:(NSURL *)url finishBlock:(void (^)(id))finishBlock;
 
 @end
