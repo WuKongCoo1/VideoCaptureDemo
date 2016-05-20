@@ -12,4 +12,5 @@
 
 - (void)setupWithMovieUrl:(NSURL *)url;
 
+- (void)showAnimatedImages;
 @end

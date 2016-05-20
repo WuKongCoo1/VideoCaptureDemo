@@ -112,6 +112,7 @@ WKMovieRecorderDelegate
 - (IBAction)changeCamera:(id)sender;
 - (IBAction)play:(id)sender;
 
+- (IBAction)camera:(id)sender;
 
 
 @end
@@ -138,7 +139,7 @@ WKMovieRecorderDelegate
     _recorder = [[WKMovieRecorder alloc] initWithURL:[NSURL fileURLWithPath:outputPath]];
     _recorder.delegate = self;
     
-    [_recorder prepareRecording];
+//    [_recorder prepareRecording];
     
 }
 
@@ -677,7 +678,7 @@ WKMovieRecorderDelegate
 #pragma mark - Actions
 - (void)benginRecording
 {
-//    [self.recorder setCropSize:self.previewView.bounds.size];
+    [self.recorder setCropSize:self.previewView.bounds.size];
     [self.recorder prepareRecording];
     self.status = RecordingStatusStartingRecording;
     
@@ -789,5 +790,29 @@ WKMovieRecorderDelegate
 - (void)movieRecorderDidFinishRecording:(WKMovieRecorder *)recorder
 {
     self.status = RecordingStatusIdle;
+}
+
+#pragma mark - Camera
+- (IBAction)camera:(id)sender {
+    
+    UIImagePickerController *ipc = [[UIImagePickerController alloc] init];
+    
+    ipc.sourceType =  UIImagePickerControllerSourceTypeCamera;
+    
+    ipc.delegate = self;
+    
+    ipc.allowsEditing = YES;
+    
+    ipc.videoQuality = UIImagePickerControllerQualityTypeMedium;
+    
+    ipc.videoMaximumDuration = 30.0f; // 30 seconds
+    
+    ///ipc.mediaTypes = [NSArray arrayWithObject:@"public.movie"];
+    
+    //主要是下边的两能数，@"public.movie", @"public.image"  一个是录像，一个是拍照
+    
+    ipc.mediaTypes = [NSArray arrayWithObjects:@"public.movie", @"public.image", nil];
+    
+    [self presentModalViewController:ipc animated:YES];
 }
 @end

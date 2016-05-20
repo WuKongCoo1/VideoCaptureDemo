@@ -10,7 +10,9 @@
 #import <AVFoundation/AVFoundation.h>
 #import "WKVideoConverter.h"
 
-#define PreViewWithImage 0
+#define PreViewWithImage 1
+#define SCREEN_WIDTH ([UIScreen mainScreen].bounds.size.width)
+#define SCREEN_HEIGHT ([UIScreen mainScreen].bounds.size.height)
 
 @interface PlayViewController ()
 
@@ -29,9 +31,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-//    _preView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, <#CGFloat width#>, <#CGFloat height#>)];
-//    _preView.center = self.view.center;
-//    [self.view addSubview:_preView];
+//    CGFloat ratio = SCREEN_HEIGHT  / SCREEN_WIDTH;
+
+    _preView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH / 1.2, 200.0 / 1.2)];
+    _preView.center = self.view.center;
+//    _preView.contentMode = UIViewContentModeScaleToFill;
+    [self.view addSubview:_preView];
     
     NSString *filePath;
     
@@ -79,7 +84,7 @@
         AVPlayer *player = [[AVPlayer alloc] initWithURL: videoFileURL]; // Create The AVPlayer With the URL
         AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer: player];//Place it to A Layer
         playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-        playerLayer.frame = CGRectMake(0, 0, 300, 200);//Create A view frame size to match the view
+        playerLayer.frame = CGRectMake(0, 0, SCREEN_WIDTH / 1.2, 200.0 / 1.2);//Create A view frame size to match the view
     playerLayer.position = self.view.center;
         [self.view.layer addSublayer: playerLayer];//Add it to Player Layer
         [playerLayer setNeedsDisplay];// Set it to Display

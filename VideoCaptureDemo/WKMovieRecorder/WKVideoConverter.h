@@ -12,7 +12,8 @@
 @class WKVideoConverter;
 @protocol WKVideoConverterDelegate <NSObject>
 
-- (void)videoConverter:(WKVideoConverter *)converter process:(CGFloat)process;
+- (void)videoConverter:(WKVideoConverter *)converter progress:(CGFloat)progress;
+- (void)videoConverterFinishConvert:(WKVideoConverter *)converter;
 
 @end
 

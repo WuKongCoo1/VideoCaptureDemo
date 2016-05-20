@@ -39,7 +39,7 @@ UITableViewDataSource
 - (NSInteger)tableView:(UITableView *)tableView
  numberOfRowsInSection:(NSInteger)section
 {
-    return 1;
+    return 5;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView
@@ -60,12 +60,15 @@ UITableViewDataSource
     
     format = @"/Users/wukong/Desktop/0.MOV";
 #else
-    
-    format = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/%d.MOV"];
+    format = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/output2.mov"];
+//    format = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents/%d.MOV"];
     
 #endif
     NSString *videoFilePath = [NSString stringWithFormat:format, arc4random_uniform(4)];//Get the Video from Bundle
     NSURL *videoFileURL = [NSURL fileURLWithPath: videoFilePath];//Convert the NSString To NSURL
+    
+    
+    
     [cell setupWithMovieUrl:videoFileURL];
 }
 
@@ -74,6 +77,11 @@ UITableViewDataSource
     return 200.f;
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    MovieCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    [cell showAnimatedImages];
+}
 
 -(void)dealloc
 {

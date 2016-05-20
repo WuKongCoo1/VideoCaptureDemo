@@ -16,6 +16,8 @@
 #import <Accelerate/Accelerate.h>
 #include <objc/runtime.h> 
 
+#define SCREEN_WIDTH ([UIScreen mainScreen].bounds.size.width)
+#define SCREEN_HEIGHT ([UIScreen mainScreen].bounds.size.height)
 
 @interface WKMovieRecorder ()<AVCaptureAudioDataOutputSampleBufferDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
 
@@ -109,10 +111,21 @@
         _cropSize = [UIScreen mainScreen].bounds.size;
         
     }
+
+//    CGFloat ratio = SCREEN_HEIGHT  / SCREEN_WIDTH;
+//    
+//    while (fmodf(_cropSize.width, 16) != 0) {
+//        _cropSize.width ++;
+//    }
+//    
+//    _cropSize.height = _cropSize.width * ratio;
+    
+
+    
     videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
                      AVVideoCodecH264, AVVideoCodecKey,
                      [NSNumber numberWithInt:_cropSize.width], AVVideoWidthKey,
-                     [NSNumber numberWithInt:_cropSize.height],AVVideoHeightKey,
+                     [NSNumber numberWithInt:_cropSize.height], AVVideoHeightKey,
                      AVVideoScalingModeResizeAspectFill,AVVideoScalingModeKey,
                      nil];
     

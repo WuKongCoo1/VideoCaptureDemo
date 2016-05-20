@@ -14,6 +14,7 @@
 		6753ECC21CE48328008C9090 /* WKPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6753ECC01CE48328008C9090 /* WKPreviewView.m */; };
 		675830B51CE33463008C6A7D /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 675830B41CE33463008C6A7D /* Accelerate.framework */; };
 		6762C13C1CEDB2A9002C5FFA /* WKScaleButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 6762C13B1CEDB2A9002C5FFA /* WKScaleButton.m */; };
+		6762C13F1CEEE74C002C5FFA /* WKProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6762C13E1CEEE74C002C5FFA /* WKProgressView.m */; };
 		676C543D1CE959F700127DC8 /* PlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 676C543C1CE959F700127DC8 /* PlayViewController.m */; };
 		6785A0741CE05CF40066015C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0731CE05CF40066015C /* main.m */; };
 		6785A0771CE05CF40066015C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 6785A0761CE05CF40066015C /* AppDelegate.m */; };
@@ -57,6 +58,8 @@
 		675830B41CE33463008C6A7D /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		6762C13A1CEDB2A9002C5FFA /* WKScaleButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKScaleButton.h; sourceTree = "<group>"; };
 		6762C13B1CEDB2A9002C5FFA /* WKScaleButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WKScaleButton.m; sourceTree = "<group>"; };
+		6762C13D1CEEE74C002C5FFA /* WKProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WKProgressView.h; sourceTree = "<group>"; };
+		6762C13E1CEEE74C002C5FFA /* WKProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WKProgressView.m; sourceTree = "<group>"; };
 		676C543B1CE959F700127DC8 /* PlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayViewController.h; sourceTree = "<group>"; };
 		676C543C1CE959F700127DC8 /* PlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayViewController.m; sourceTree = "<group>"; };
 		6785A06F1CE05CF40066015C /* VideoCaptureDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoCaptureDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -116,6 +119,8 @@
 				67193A5E1CE9CBC7005C6D13 /* WKVideoConverter.m */,
 				6762C13A1CEDB2A9002C5FFA /* WKScaleButton.h */,
 				6762C13B1CEDB2A9002C5FFA /* WKScaleButton.m */,
+				6762C13D1CEEE74C002C5FFA /* WKProgressView.h */,
+				6762C13E1CEEE74C002C5FFA /* WKProgressView.m */,
 			);
 			path = WKMovieRecorder;
 			sourceTree = "<group>";
@@ -328,6 +333,7 @@
 				6785A0771CE05CF40066015C /* AppDelegate.m in Sources */,
 				67193A591CE9B173005C6D13 /* MovieListViewController.m in Sources */,
 				6785A0741CE05CF40066015C /* main.m in Sources */,
+				6762C13F1CEEE74C002C5FFA /* WKProgressView.m in Sources */,
 				67193A5F1CE9CBC7005C6D13 /* WKVideoConverter.m in Sources */,
 				676C543D1CE959F700127DC8 /* PlayViewController.m in Sources */,
 				67193A5C1CE9B530005C6D13 /* MovieCell.m in Sources */,
