@@ -47,7 +47,7 @@ WKVideoConverterDelegate
      [self->_previewImageView addSubview:_progressView];
 
     _progressView.borderColor = [UIColor grayColor];
-    _progressView.progressColor = [UIColor orangeColor];
+    _progressView.progressColor = [UIColor whiteColor];
     _progressView.progress = .7;
     _progressView.progressWidth = 10;
     
@@ -118,7 +118,10 @@ WKVideoConverterDelegate
         _progressView.hidden = YES;
         
     }else{
-        _progressView.hidden = NO;
+        if (progress <= 1.0) {
+            _progressView.hidden = NO;
+        }
+        
     }
     
 }

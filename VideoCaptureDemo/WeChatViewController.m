@@ -95,8 +95,12 @@ WKMovieRecorderDelegate
 @property (nonatomic, assign, getter=isFinishRecording) BOOL finishRecording;
 
 @property (nonatomic, assign) RecordingStatus status;
-
 @property (nonatomic,) CMSampleBufferRef currentbuffer;
+
+//Recording Utilities
+@property (nonatomic, strong) NSTimer *recordingTimer;
+@property (nonatomic, assign) NSInteger endState;
+@property (nonatomic, assign) CGPoint tempPoint;
 
 //preView
 //@property (nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
@@ -211,6 +215,13 @@ WKMovieRecorderDelegate
     UIBarButtonItem *cancleItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStylePlain target:self action:@selector(cancle:)];
     
     self.navigationItem.leftBarButtonItem = cancleItem;
+#define UsePanGesture 1
+#if UsePanGesture
+    
+    UILongPressGestureRecognizer *panGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(panAction:)];
+    [self.longPressButton addGestureRecognizer:panGesture];
+    
+#else
     
     [self.longPressButton addTarget:self action:@selector(beginLongPress) forControlEvents:UIControlEventTouchDown];
     [self.longPressButton addTarget:self action:@selector(moveOut) forControlEvents:UIControlEventTouchUpOutside];
@@ -218,12 +229,51 @@ WKMovieRecorderDelegate
     [self.longPressButton addTarget:self action:@selector(dragEnter) forControlEvents:UIControlEventTouchDragEnter];
     [self.longPressButton addTarget:self action:@selector(dragExit) forControlEvents:UIControlEventTouchDragExit];
     
+#endif
     _processLayer = [CALayer layer];
-    
-    
-    
-    
 }
+
+- (void)panAction:(UILongPressGestureRecognizer *)ges
+{
+    switch (ges.state) {
+        
+        case UIGestureRecognizerStateBegan: {
+            [self beginLongPress];
+
+            break;
+        }
+        case UIGestureRecognizerStateChanged: {
+            CGPoint point = [ges locationInView:self.longPressButton];
+//            NSLog(@"poitn : %@", NSStringFromCGPoint(point));
+            if (![self.longPressButton circleContainsPoint:point]) {
+                
+                [self dragExit];
+                
+                self.endState = 0;
+                
+            } else if ([self.longPressButton circleContainsPoint:point]) {
+                self.endState = 1;
+                [self dragEnter];
+
+            }
+            break;
+        }
+        case UIGestureRecognizerStateEnded:
+        case UIGestureRecognizerStateCancelled: {
+            NSLog(@"cancel, end");
+            [self endPress];
+            break;
+        }
+        case UIGestureRecognizerStateFailed: {
+            NSLog(@"failed");
+            
+            break;
+        }
+        default:
+            break;
+    }
+}
+
 
 - (void)addAnimation
 {
@@ -277,11 +327,28 @@ WKMovieRecorderDelegate
 
 - (void)endPress
 {
-    NSLog(@"%s", __FUNCTION__);
-    [_countDownTimer invalidate];
-    if (self.status == RecordingStatusStartingRecording) {
-        [self finishRecording];
+    switch (self.endState) {
+        case 0: {
+            
+            NSLog(@"取消发送");
+            [self moveOut];
+            break;
+        }
+        case 1: {
+            
+            NSLog(@"发送");
+            NSLog(@"%s", __FUNCTION__);
+            [_countDownTimer invalidate];
+            if (self.status == RecordingStatusStartingRecording) {
+                [self finishRecording];
+            }
+            break;
+        }
+        default:
+            break;
     }
+    
+    
 }
 
 - (void)dragEnter

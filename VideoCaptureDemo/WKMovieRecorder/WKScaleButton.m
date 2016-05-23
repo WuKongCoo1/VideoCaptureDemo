@@ -7,18 +7,25 @@
 //
 
 #import "WKScaleButton.h"
-#define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
-@implementation WKScaleButton
 
+const CGFloat ScaleButtonCircleRadius = 120.f;
+
+#define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
+
+@implementation WKScaleButton
+{
+    CALayer *_effectiveLayer;
+}
 - (void)awakeFromNib
 {
     self.backgroundColor = [UIColor clearColor];
     
     _circleLayer = [CAShapeLayer layer];
     _circleLayer.frame = self.bounds;
-    UIBezierPath *path = [UIBezierPath bezierPathWithArcCenter:_circleLayer.position radius:(self.bounds.size.width - 5)/2 startAngle:-M_PI endAngle:M_PI clockwise:YES];
+    UIBezierPath *path = [UIBezierPath bezierPathWithArcCenter:_circleLayer.position radius:(ScaleButtonCircleRadius)/2 startAngle:-M_PI endAngle:M_PI clockwise:YES];
     _circleLayer.path = path.CGPath;
     _circleLayer.fillColor = [UIColor clearColor].CGColor;
+    
     _circleLayer.lineWidth = 3;
     _circleLayer.strokeColor = [UIColor cyanColor].CGColor;
 
@@ -35,6 +42,7 @@
     [self.layer addSublayer:gradientLayer];
     
 }
+
 
 -(void)disappearAnimation{
     CABasicAnimation *animation_scale = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
@@ -62,6 +70,17 @@
     aniGroup.removedOnCompletion = NO;
     [_circleLayer addAnimation:aniGroup forKey:@"reset"];
     [_label.layer addAnimation:aniGroup forKey:@"reset1"];
+}
+
+- (CGFloat)radius
+{
+    return ScaleButtonCircleRadius;
+}
+
+- (BOOL)circleContainsPoint:(CGPoint)point
+{
+    CGRect circleRect = CGRectMake((CGRectGetWidth(self.frame) - ScaleButtonCircleRadius) / 2, (CGRectGetWidth(self.frame) - ScaleButtonCircleRadius) / 2, ScaleButtonCircleRadius, ScaleButtonCircleRadius);
+    return CGRectContainsPoint(circleRect, point);
 }
 
 @end

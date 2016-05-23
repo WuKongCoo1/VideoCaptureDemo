@@ -293,10 +293,10 @@
                                 </variation>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2tv-zI-2Pi" customClass="WKScaleButton">
-                                <rect key="frame" x="240" y="430" width="120" height="120"/>
+                                <rect key="frame" x="200" y="350" width="200" height="200"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="120" id="5Ap-xQ-Dxb"/>
-                                    <constraint firstAttribute="height" constant="120" id="ySn-hy-eBt"/>
+                                    <constraint firstAttribute="width" constant="200" id="5Ap-xQ-Dxb"/>
+                                    <constraint firstAttribute="height" constant="200" id="ySn-hy-eBt"/>
                                 </constraints>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ght-V3-93a">

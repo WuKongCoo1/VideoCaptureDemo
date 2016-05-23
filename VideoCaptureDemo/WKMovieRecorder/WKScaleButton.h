@@ -8,11 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
-@interface WKScaleButton : UIButton
+@interface WKScaleButton : UIView
 
 @property (nonatomic,strong) CAShapeLayer *circleLayer;
 @property (nonatomic,strong) UILabel *label;
+@property (nonatomic, readonly) CGFloat radius;
+
 -(void)disappearAnimation;
 -(void)appearAnimation;
+
+- (BOOL)circleContainsPoint:(CGPoint)point;
 
 @end
