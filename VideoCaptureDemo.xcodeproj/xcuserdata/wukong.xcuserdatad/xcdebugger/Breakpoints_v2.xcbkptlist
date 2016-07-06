@@ -105,22 +105,6 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "VideoCaptureDemo/WeChatViewController.m"
-            timestampString = "485666381.798817"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "859"
-            endingLineNumber = "859"
-            landmarkName = "-movieRecorderDidFinishRecording:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "VideoCaptureDemo/WKMovieRecorder/WKPreviewView.m"
             timestampString = "485335312.221143"
             startingColumnNumber = "9223372036854775807"
@@ -138,12 +122,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "VideoCaptureDemo/WeChatViewController.m"
-            timestampString = "485666381.798817"
+            timestampString = "489487689.365975"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "368"
-            endingLineNumber = "368"
-            landmarkName = "-dragExit"
+            startingLineNumber = "380"
+            endingLineNumber = "380"
+            landmarkName = "-setStatusLableHidden:isOut:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -234,12 +218,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "VideoCaptureDemo/WeChatViewController.m"
-            timestampString = "487760139.687465"
+            timestampString = "489489247.910435"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "238"
-            endingLineNumber = "238"
-            landmarkName = "-panAction:"
+            startingLineNumber = "786"
+            endingLineNumber = "786"
+            landmarkName = "-captureOutput:didOutputSampleBuffer:fromConnection:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
