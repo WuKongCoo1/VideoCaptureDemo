@@ -226,7 +226,7 @@ WKMovieRecorderDelegate
     [self.longPressButton addTarget:self action:@selector(beginLongPress) forControlEvents:UIControlEventTouchDown];
     [self.longPressButton addTarget:self action:@selector(moveOut) forControlEvents:UIControlEventTouchUpOutside];
     [self.longPressButton addTarget:self action:@selector(endPress) forControlEvents:UIControlEventTouchUpInside];
-    [self.longPressButton addTarget:self action:@selector(dragEnter) forControlEvents:UIControlEventTouchDragEnter];
+    [self.longPressButton addTarget:self action:@selector(dragEn ter) forControlEvents:UIControlEventTouchDragEnter];
     [self.longPressButton addTarget:self action:@selector(dragExit) forControlEvents:UIControlEventTouchDragExit];
     
 #endif
